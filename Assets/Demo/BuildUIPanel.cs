@@ -16,6 +16,7 @@ using RuntimeGizmos;
         {
             buildCamera.target = transGizmo.SetTargets(x.ToArray());
         };
+        drawer.onLostSelect = transGizmo.DeleteTargets;
         transGizmo.onTransormingStateChanged = (x) => {
             drawer.enabled = !x;
         };
