@@ -14,23 +14,33 @@ using RuntimeGizmos;
     {
         drawer.onGetRootObjs = (x) =>
         {
-            transGizmo.SetTargets(x.ToArray());
+            buildCamera.target = transGizmo.SetTargets(x.ToArray());
         };
+        transGizmo.onTransormingStateChanged = (x) => {
+            drawer.enabled = !x;
+        };
+        drawer.InitSelectDrawer<MeshRenderer>();
     }
     private void OnGUI()
     {
         if (GUILayout.Button("Switch"))
         {
-            dragCamera.SwitchisTopViewOr3D();
+            //选择打开dragCamera
+            if (buildCamera.enabled)
+            {
+                dragCamera.enabled = true;
+                buildCamera.enabled = false;
+            }
+            dragCamera.SwitchisTopViewOr3D(buildCamera.target);
         }
         if (GUILayout.Button("相机切换"))
         {
+            //先切换为正常视角
+            if (dragCamera.enabled && dragCamera.IsTopView){
+                dragCamera.SwitchisTopViewOr3D(buildCamera.target);
+            }
             dragCamera.enabled = !dragCamera.enabled;
             buildCamera.enabled = !dragCamera.enabled;
-        }
-        if (GUILayout.Button("Select"))
-        {
-            drawer.InitSelectDrawer<MeshRenderer>();
         }
     }
 }

@@ -18,6 +18,7 @@ public class DragCamera : MonoBehaviour
     private MouseScroll _mouseScroll;
 
     private Quaternion lastQuater;
+    private Vector3 lastPosition;
     public bool IsTopView { get { return _isTopView; } }
     private void Start()
     {
@@ -42,17 +43,21 @@ public class DragCamera : MonoBehaviour
     /// <summary>
     /// 切换顶视面或3维视图
     /// </summary>
-    public void SwitchisTopViewOr3D()
+    public void SwitchisTopViewOr3D(Transform target = null)
     {
+        var position = target == null ? transform.position : new Vector3(target.transform.position.x, transform.position.y,target.transform.position.z);
         _isTopView = !_isTopView;
         if (_isTopView)
         {
-            lastQuater = transform.localRotation;
+            lastPosition = transform.position;
+            lastQuater = transform.rotation;
             transform.localEulerAngles = new Vector3(90, 0, 0);
+            transform.position = position;
         }
         else
         {
-            transform.localRotation = lastQuater;
+            transform.position = lastPosition;
+            transform.rotation = lastQuater;
         }
     }
   
