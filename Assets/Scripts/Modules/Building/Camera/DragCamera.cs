@@ -22,8 +22,8 @@ public class DragCamera : MonoBehaviour
     private void Start()
     {
         _camera = GetComponent<Camera>();
-        _mouseRotate.Init(_camera.transform);
-        _mouseMove.Init(_camera.transform);
+        _mouseRotate.Init(transform);
+        _mouseMove.Init(transform);
         _mouseScroll.Init(_camera);
     }
     void Update()
@@ -47,13 +47,12 @@ public class DragCamera : MonoBehaviour
         _isTopView = !_isTopView;
         if (_isTopView)
         {
-            lastQuater = _camera.transform.localRotation;
-            _camera.transform.localEulerAngles = new Vector3(90, 0, 0);
-            transform.localEulerAngles = Vector3.zero;
+            lastQuater = transform.localRotation;
+            transform.localEulerAngles = new Vector3(90, 0, 0);
         }
         else
         {
-            _camera.transform.localRotation = lastQuater;
+            transform.localRotation = lastQuater;
         }
     }
   
@@ -62,11 +61,11 @@ public class DragCamera : MonoBehaviour
         Vector3 foward = Vector3.zero;
         if (_isTopView)
         {
-            foward = transform.forward;
+            foward = Vector3.forward;
         }
         else
         {
-            foward = _camera.transform.forward;
+            foward = transform.forward;
             foward.y = 0;
         }
         return foward ;
