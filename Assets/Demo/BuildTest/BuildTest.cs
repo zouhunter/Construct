@@ -4,8 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine;
 
-public class Test : MonoBehaviour {
-
+public class BuildTest : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		

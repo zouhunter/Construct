@@ -5,18 +5,20 @@ using UnityEngine.Events;
 using UnityEngine;
 using RuntimeGizmos;
 
-    public class BuildUIPanel : MonoBehaviour {
+    public class CameraTest : MonoBehaviour {
     public DragCamera dragCamera;
     public BuildingViewCamera buildCamera;
     public SelectDrawer drawer;
-    public TransformGizmo transGizmo;
+    public TransormAbleGizmo transGizmo;
+    private Vector3 lastTargetPos;
     private void OnEnable()
     {
         drawer.onGetRootObjs = (x) =>
         {
             buildCamera.target = transGizmo.SetTargets(x.ToArray());
+            lastTargetPos = buildCamera.target.position;
         };
-        drawer.onLostSelect = transGizmo.DeleteTargets;
+        drawer.onLostSelect = transGizmo.DeleteTarget;
         transGizmo.onTransormingStateChanged = (x) => {
             drawer.enabled = !x;
         };
@@ -32,13 +34,13 @@ using RuntimeGizmos;
                 dragCamera.enabled = true;
                 buildCamera.enabled = false;
             }
-            dragCamera.SwitchisTopViewOr3D(buildCamera.target);
+            dragCamera.SwitchisTopViewOr3D(lastTargetPos);
         }
         if (GUILayout.Button("相机切换"))
         {
             //先切换为正常视角
             if (dragCamera.enabled && dragCamera.IsTopView){
-                dragCamera.SwitchisTopViewOr3D(buildCamera.target);
+                dragCamera.SwitchisTopViewOr3D(lastTargetPos);
             }
             dragCamera.enabled = !dragCamera.enabled;
             buildCamera.enabled = !dragCamera.enabled;

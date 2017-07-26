@@ -6,16 +6,16 @@ using System.Collections;
 namespace RuntimeGizmos
 {
     [RequireComponent(typeof(Camera))]
-    public class TransformGizmo : MonoBehaviour
+    public class TransormAbleGizmo : MonoBehaviour
     {
-        public TransformSpace space = TransformSpace.Global;
-        public TransformType type = TransformType.Move;
+        private TransformSpace space = TransformSpace.Global;
+        private TransformType type = TransformType.Move;
 
         //These are the same as the unity editor hotkeys
-        public KeyCode SetMoveType = KeyCode.W;
-        public KeyCode SetRotateType = KeyCode.E;
-        public KeyCode SetScaleType = KeyCode.R;
-        public KeyCode SetSpaceToggle = KeyCode.X;
+        private KeyCode SetMoveType = KeyCode.W;
+        private KeyCode SetRotateType = KeyCode.E;
+        private KeyCode SetScaleType = KeyCode.R;
+        private KeyCode SetSpaceToggle = KeyCode.X;
 
         Color xColor = new Color(1, 0, 0, 0.8f);
         Color yColor = new Color(0, 1, 0, 0.8f);
@@ -44,8 +44,8 @@ namespace RuntimeGizmos
         Quaternion totalRotationAmount;
         Axis selectedAxis = Axis.None;
         AxisInfo axisInfo;
-        [SerializeField]
-        Transform target;
+        private Transform target;
+        private Transform[] targets;
         [SerializeField]
         bool disableKey;
         Camera myCamera;
@@ -121,9 +121,21 @@ namespace RuntimeGizmos
         #region BuildingUser
         public Transform SetTargets(params Transform[] targets)
         {
-            if (this.target != null) DeleteTargets();
-            if (targets == null || targets.Length == 0) { return null; }
-            this.target = new GameObject("SelectGrop").transform;
+            if (targets == null || targets.Length == 0)
+            {
+                DeleteTarget();
+                return null;
+            }
+            else
+            {
+                this.targets = targets;
+            }
+
+            if (target == null)
+            {
+                target = new GameObject("SelectHolder").transform;
+            }
+
             var pos = Vector3.zero;
             foreach (var item in targets)
             {
@@ -131,18 +143,12 @@ namespace RuntimeGizmos
             }
 
             target.position = pos / targets.Length;
-
-            foreach (var item in targets)
-            {
-                item.transform.SetParent(target);
-            }
             return target;
         }
-        public void DeleteTargets()
+        public void DeleteTarget()
         {
             if (target != null)
             {
-                target.DetachChildren();
                 Destroy(target.gameObject);
             }
         }
@@ -152,10 +158,43 @@ namespace RuntimeGizmos
             this.type = type;
             this.space = space;
         }
+        private void OnLocalScaleChanged(Vector3 scale)
+        {
+            if (targets != null)
+                foreach (var item in targets)
+                {
+                    item.localScale += scale;
+                }
+        }
+        private void OnRotationChanged(Vector3 rotation)
+        {
+            if (targets != null)
+                foreach (var item in targets)
+                {
+                    item.Rotate(rotation * allRotateSpeedMultiplier, Space.World);
+                }
+        }
+        private void OnRotationChanged(Vector3 rotation, float rotateAmount)
+        {
+            if (targets != null)
+                foreach (var item in targets)
+                {
+                    item.Rotate(rotation, rotateAmount, Space.World);
+                }
+        }
+        private void OnPositionChanged(Vector3 value)
+        {
+            if (targets != null)
+                foreach (var item in targets)
+                {
+                    item.Translate(value, Space.World);
+                }
+        }
         #endregion
         void SetSpaceAndType()
         {
-            if (disableKey){
+            if (disableKey)
+            {
                 return;
             }
             if (Input.GetKeyDown(SetMoveType)) type = TransformType.Move;
@@ -202,6 +241,7 @@ namespace RuntimeGizmos
                     {
                         float moveAmount = ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projectedAxis) * moveSpeedMultiplier;
                         target.Translate(axis * moveAmount, Space.World);
+                        OnPositionChanged(axis * moveAmount);
                     }
 
                     if (type == TransformType.Scale)
@@ -212,8 +252,18 @@ namespace RuntimeGizmos
                         //WARNING - There is a bug in unity 5.4 and 5.5 that causes InverseTransformDirection to be affected by scale which will break negative scaling. Not tested, but updating to 5.4.2 should fix it - https://issuetracker.unity3d.com/issues/transformdirection-and-inversetransformdirection-operations-are-affected-by-scale
                         Vector3 localAxis = (space == TransformSpace.Local && selectedAxis != Axis.Any) ? target.InverseTransformDirection(axis) : axis;
 
-                        if (selectedAxis == Axis.Any) target.localScale += (ExtVector3.Abs(target.localScale.normalized) * scaleAmount);
-                        else target.localScale += (localAxis * scaleAmount);
+                        if (selectedAxis == Axis.Any)
+                        {
+                            var scaleChange = (ExtVector3.Abs(target.localScale.normalized) * scaleAmount);
+                            target.localScale += scaleChange;
+                            OnLocalScaleChanged(scaleChange);
+                        }
+                        else
+                        {
+                            var scaleChange = (localAxis * scaleAmount);
+                            target.localScale += scaleChange;
+                            OnLocalScaleChanged(scaleChange);
+                        }
 
                         totalScaleAmount += scaleAmount;
                     }
@@ -223,19 +273,21 @@ namespace RuntimeGizmos
                         if (selectedAxis == Axis.Any)
                         {
                             Vector3 rotation = transform.TransformDirection(new Vector3(Input.GetAxis("Mouse Y"), -Input.GetAxis("Mouse X"), 0));
-                            target.Rotate(rotation * allRotateSpeedMultiplier, Space.World);
+                            var rotationChange = rotation * allRotateSpeedMultiplier;
+                            target.Rotate(rotationChange, Space.World);
+                            OnRotationChanged(rotationChange);
                             totalRotationAmount *= Quaternion.Euler(rotation * allRotateSpeedMultiplier);
                         }
                         else
                         {
                             Vector3 projected = (selectedAxis == Axis.Any || ExtVector3.IsParallel(axis, planeNormal)) ? planeNormal : Vector3.Cross(axis, planeNormal);
                             float rotateAmount = (ExtVector3.MagnitudeInDirection(mousePosition - previousMousePosition, projected) * rotateSpeedMultiplier) / GetDistanceMultiplier();
+                            OnRotationChanged(axis, rotateAmount);
                             target.Rotate(axis, rotateAmount, Space.World);
                             totalRotationAmount *= Quaternion.Euler(axis * rotateAmount);
                         }
                     }
                 }
-
                 previousMousePosition = mousePosition;
 
                 yield return null;

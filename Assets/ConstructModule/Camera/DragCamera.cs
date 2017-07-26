@@ -43,9 +43,9 @@ public class DragCamera : MonoBehaviour
     /// <summary>
     /// 切换顶视面或3维视图
     /// </summary>
-    public void SwitchisTopViewOr3D(Transform target = null)
+    public void SwitchisTopViewOr3D(Vector3 centerPos = default(Vector3))
     {
-        var position = target == null ? transform.position : new Vector3(target.transform.position.x, transform.position.y,target.transform.position.z);
+        var position = centerPos == default(Vector3) ? transform.position : new Vector3(centerPos.x, transform.position.y, centerPos.z);
         _isTopView = !_isTopView;
         if (_isTopView)
         {
