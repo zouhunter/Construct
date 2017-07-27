@@ -7,12 +7,13 @@ using System.Collections.Generic;
 
 public class BuildingItem : MonoBehaviour
 {
-    public BuildState state;
+    private float moveSpeed = 100;
+    public BuildState state = BuildState.Normal;
     private NavMeshAgent agent;
     private UnityEngine.AI.NavMeshObstacle obstacle;
     private void OnEnable()
     {
-        SetBuildState(BuildState.Normal);
+        if (state == BuildState.Normal) SetBuildState(BuildState.Normal);
     }
     public void SetBuildState(BuildState state)
     {
@@ -33,7 +34,7 @@ public class BuildingItem : MonoBehaviour
                 obstacle.enabled = true;
             }
         }
-       else if(state == BuildState.Inbuild)
+        else if (state == BuildState.Inbuild)
         {
             if (obstacle != null && obstacle.enabled) obstacle.enabled = false;
 
@@ -45,7 +46,12 @@ public class BuildingItem : MonoBehaviour
             {
                 agent.enabled = true;
             }
+            agent.speed = moveSpeed;
         }
+    }
+    public void WorpToNewPos(Vector3 newPos)
+    {
+        agent.Warp(newPos);
     }
 }
 

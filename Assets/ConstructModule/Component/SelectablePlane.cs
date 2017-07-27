@@ -14,7 +14,7 @@ public class SelectablePlane : MonoBehaviour
 {
     public NaviMeshHitCtrl HitCtrl;
     public UnityAction<bool> onMoveStateChanged;
-    private Transform targetObj;
+    private BuildingItem targetObj;
     public const string movePosTag = "MovePos";
     public NavMeshSurface surface;
     private RaycastHit hit;
@@ -32,7 +32,7 @@ public class SelectablePlane : MonoBehaviour
         }
         if (Input.GetMouseButton(0))
         {
-            UpdateTargetPos();
+             UpdateTargetPos();
         }
         if (Input.GetMouseButtonUp(0))
         {
@@ -40,7 +40,7 @@ public class SelectablePlane : MonoBehaviour
             targetObj = null;
         }
     }
-    public void SetTarget(Transform target)
+    public void SetTarget(BuildingItem target)
     {
         this.targetObj = target;
     }
@@ -53,7 +53,7 @@ public class SelectablePlane : MonoBehaviour
         {
             if (hit.collider != null)
             {
-                targetObj.transform.position = hit.point;
+                targetObj.WorpToNewPos(hit.point);
             }
         }
     }

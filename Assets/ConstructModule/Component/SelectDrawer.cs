@@ -94,7 +94,7 @@ public class SelectDrawer : MonoBehaviour
                 if (hit && hitInfo.collider != null && hitInfo.collider.GetComponent(_type) != null)
                 {
                     _needDraw = true;
-                    hitTrans = hitInfo.collider.transform;
+                    hitTrans = hitInfo.collider.GetComponent<Transform>();
                 }
                 else
                 {
@@ -115,7 +115,7 @@ public class SelectDrawer : MonoBehaviour
             if (_type != null && onGetRootObjs != null && Vector3.Distance(_startPos, Input.mousePosition) > 1)
             {
                 var selectd = SelectObjectRect(_camera, _type, _startPos, Input.mousePosition);
-                onGetRootObjs(selectd == null ? null : selectd.ToArray());
+                onGetRootObjs(selectd == null ? null : selectd);
             }
             else if(hitTrans == null && onGetRootObjs != null)
             {
@@ -125,7 +125,7 @@ public class SelectDrawer : MonoBehaviour
         }
     }
 
-    private static List<Transform> SelectObjectRect(Camera camera, Type type, Vector3 startPos, Vector3 endPos)
+    private static Transform[] SelectObjectRect(Camera camera, Type type, Vector3 startPos, Vector3 endPos)
     {
         List<Transform> items = new List<Transform>();
         var objs = UnityEngine.Object.FindObjectsOfType(type) as Component[];
@@ -135,10 +135,10 @@ public class SelectDrawer : MonoBehaviour
             var viewPos = camera.WorldToScreenPoint(trans.position);
             if (IsPointInBox(viewPos, startPos, endPos))
             {
-                items.Add(item.transform);
+                items.Add(item as Transform);
             }
         }
-        return items;
+        return items.ToArray();
     }
 
     private static bool IsPointInBox(Vector2 point, Vector2 startPoint, Vector2 endPoint)
