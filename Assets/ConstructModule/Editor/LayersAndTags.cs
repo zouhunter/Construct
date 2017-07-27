@@ -10,14 +10,7 @@ public class LayersAndTags : AssetPostprocessor
     {
         foreach (string s in importedassets)
         {
-            if (s.Contains("BuildingItem.cs"))
-            {
-                AddTag(BuildingItem.movePosTag);
-            }
-            else if (s.Contains("SelectablePlane.cs"))
-            {
-                AddTag(SelectablePlane.movePosTag);
-            }
+            
         }
     }
 

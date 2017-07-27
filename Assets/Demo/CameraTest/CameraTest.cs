@@ -10,12 +10,12 @@ using RuntimeGizmos;
     public SelectDrawer drawer;
     public TransormAbleGizmo transGizmo;
     private Vector3 lastTargetPos;
-    private Transform[] lastTrans;
+    //private Transform[] lastTrans;
     private void OnEnable()
     {
         drawer.onGetRootObjs = (x) =>
         {
-            lastTrans = x;
+            //lastTrans = x;
             var root = transGizmo.SetTargets(x);
             if (root != null)
             {

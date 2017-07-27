@@ -11,8 +11,8 @@ public class DragCamera : MonoBehaviour
     private Camera _camera;
     [SerializeField]
     private bool _isTopView;
-    [SerializeField]
-    private float focusingDistence = 10;
+    //[SerializeField]
+    //private float focusingDistence = 10;
     [SerializeField]
     private MouseRotate _mouseRotate;
     [SerializeField]

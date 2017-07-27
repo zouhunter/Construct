@@ -4,79 +4,57 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.AI;
 [System.Serializable]
-public class PosEvent: UnityEvent<Vector3>
+public class PosEvent : UnityEvent<Vector3>
 {
 
 }
 public class SelectablePlane : MonoBehaviour
 {
-    public PosEvent onClickPos;
-
+    public NaviMeshHitCtrl HitCtrl;
+    public UnityAction<bool> onMoveStateChanged;
     private Transform targetObj;
-    private Transform activeObj;
-    private HitController HitCtrl;
-    private Vector3 hitpos;
-    private Collider m_Collider;
-
     public const string movePosTag = "MovePos";
+    public NavMeshSurface surface;
+    private RaycastHit hit;
     private void OnEnable()
     {
-        HitCtrl = new HitController();
+        HitCtrl.Init();
     }
     void Update()
     {
-        HitCtrl.Update();
-
-        if (targetObj == null)
-        {
-            SelectedTarget();
-        }
-
+        HitCtrl.Update(movePosTag);
         if (targetObj == null) return;
-
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (onMoveStateChanged != null) onMoveStateChanged(true);
+        }
         if (Input.GetMouseButton(0))
         {
             UpdateTargetPos();
-            if (Input.GetMouseButtonDown(0))
-            {
-                if (HitCtrl.GetHitPoint(ref hitpos))
-                {
-                    onClickPos.Invoke(hitpos);
-                }
-            }
         }
-        else
+        if (Input.GetMouseButtonUp(0))
         {
-            targetObj.GetComponent<Collider>().enabled = true;
+            if (onMoveStateChanged != null) onMoveStateChanged(false);
             targetObj = null;
         }
     }
-
-    /// <summary>
-    /// 选中对象
-    /// </summary>
-    void SelectedTarget()
+    public void SetTarget(Transform target)
     {
-        if (HitCtrl.GetHitCollider(ref m_Collider) && !m_Collider.CompareTag(movePosTag))
-        {
-            if (m_Collider.transform.parent ==null ||( m_Collider.transform.parent != null && m_Collider.transform.parent.name == name))
-            {
-                targetObj = m_Collider.transform;
-                targetObj.GetComponent<Collider>().enabled = false;
-            }
-        }
+        this.targetObj = target;
     }
-
     /// <summary>
     /// 更新所控制对象坐标
     /// </summary>
     void UpdateTargetPos()
     {
-        if (HitCtrl.GetHitCollider(ref m_Collider) && m_Collider.CompareTag(movePosTag))
+        if (HitCtrl.GetOneHitCollider(ref hit))
         {
-            HitCtrl.GetHitPoint(ref hitpos);
-            targetObj.transform.position = hitpos;
+            if (hit.collider != null)
+            {
+                targetObj.transform.position = hit.point;
+            }
         }
     }
 }

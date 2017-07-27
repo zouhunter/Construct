@@ -25,6 +25,10 @@ public class SelectDrawer : MonoBehaviour
     {
         _camera = GetComponent<Camera>();
     }
+    private void OnEnable()
+    {
+        _needDraw = false;
+    }
     private void OnPostRender()
     {
         if (_needDraw)
@@ -113,7 +117,7 @@ public class SelectDrawer : MonoBehaviour
                 var selectd = SelectObjectRect(_camera, _type, _startPos, Input.mousePosition);
                 onGetRootObjs(selectd == null ? null : selectd.ToArray());
             }
-            else if(hitTrans == null)
+            else if(hitTrans == null && onGetRootObjs != null)
             {
                 onGetRootObjs(null);
             }
