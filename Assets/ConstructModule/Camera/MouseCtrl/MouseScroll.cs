@@ -24,7 +24,7 @@ public class MouseScroll {
         var scroll = Input.GetAxis("Mouse ScrollWheel");
         if (scroll != 0)
         {
-            _camera.fieldOfView += _scrollSpeed * scroll * Time.deltaTime;
+            _camera.fieldOfView -= _scrollSpeed * scroll * Time.deltaTime;
         }
     }
 }

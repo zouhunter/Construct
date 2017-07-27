@@ -3,22 +3,27 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine;
+using System;
+
 [RequireComponent(typeof(Camera))]
 public class DragCamera : MonoBehaviour
 {
     private Camera _camera;
     [SerializeField]
     private bool _isTopView;
-
+    [SerializeField]
+    private float focusingDistence = 10;
     [SerializeField]
     private MouseRotate _mouseRotate;
     [SerializeField]
     private MouseMove _mouseMove;
     [SerializeField]
     private MouseScroll _mouseScroll;
-
+    [SerializeField]
+    private AutoFocusing _autoFocusing;
     private Quaternion lastQuater;
     private Vector3 lastPosition;
+    private Vector3 focusingTarget;
     public bool IsTopView { get { return _isTopView; } }
     private void Start()
     {
@@ -26,23 +31,22 @@ public class DragCamera : MonoBehaviour
         _mouseRotate.Init(transform);
         _mouseMove.Init(transform);
         _mouseScroll.Init(_camera);
+        _autoFocusing.Init(transform);
     }
     void Update()
     {
         _mouseMove.DirectionInputHandle(GetForwardWithSpeed());
         _mouseScroll.UpdateScroll();
-        if (_isTopView)
-        {
-
-        }
-        else
+        _autoFocusing.Update(focusingTarget);
+        if (!_isTopView)
         {
             _mouseRotate.UpdateLookRotation();
         }
     }
-    /// <summary>
-    /// 切换顶视面或3维视图
-    /// </summary>
+    public void SetTarget(Vector3 targetPos)
+    {
+        focusingTarget = targetPos;
+    }
     public void SwitchisTopViewOr3D(Vector3 centerPos = default(Vector3))
     {
         var position = centerPos == default(Vector3) ? transform.position : new Vector3(centerPos.x, transform.position.y, centerPos.z);
@@ -60,7 +64,6 @@ public class DragCamera : MonoBehaviour
             transform.rotation = lastQuater;
         }
     }
-  
     private Vector3 GetForwardWithSpeed()
     {
         Vector3 foward = Vector3.zero;
@@ -73,6 +76,6 @@ public class DragCamera : MonoBehaviour
             foward = transform.forward;
             foward.y = 0;
         }
-        return foward ;
+        return foward;
     }
 }

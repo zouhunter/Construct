@@ -23,19 +23,20 @@ public class MouseMove  {
     public void DirectionInputHandle(Vector3 forwardDir)
     {
         var forward = forwardDir * _moveSpeed * Time.deltaTime;
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+        var getMouse1 = Input.GetMouseButton(1);//防止输入与wasd冲突
+        if ((getMouse1&&Input.GetKey(KeyCode.W)) || Input.GetKey(KeyCode.UpArrow))
         {
-            transform.transform.SetPositionAndRotation(transform.position + forward, transform.rotation);
+            transform.SetPositionAndRotation(transform.position + forward, transform.rotation);
         }
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+        if ((getMouse1 && Input.GetKey(KeyCode.A)) || Input.GetKey(KeyCode.LeftArrow))
         {
             transform.SetPositionAndRotation(transform.position + Quaternion.Euler(Vector3.up * -90) * forward, transform.rotation);
         }
-        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+        if ((getMouse1 && Input.GetKey(KeyCode.S)) || Input.GetKey(KeyCode.DownArrow))
         {
             transform.SetPositionAndRotation(transform.position - forward, transform.rotation);
         }
-        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        if ((getMouse1 && Input.GetKey(KeyCode.D) )|| Input.GetKey(KeyCode.RightArrow))
         {
             transform.SetPositionAndRotation(transform.position + Quaternion.Euler(Vector3.up * 90) * forward, transform.rotation);
         }

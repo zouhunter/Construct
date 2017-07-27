@@ -14,9 +14,8 @@ public class SelectDrawer : MonoBehaviour
     private bool _needDraw;
 
     public Type _type;
-    public UnityAction<List<Transform>> onGetRootObjs;
-    public UnityAction onLostSelect;
-
+    public UnityAction<Transform[]> onGetRootObjs;
+    private Transform hitTrans = null;
     public void InitSelectDrawer<T>() where T : Component
     {
         this._type = typeof(T);
@@ -87,34 +86,38 @@ public class SelectDrawer : MonoBehaviour
             {
                 RaycastHit hitInfo;
                 var hit = Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out hitInfo);
+                
                 if (hit && hitInfo.collider != null && hitInfo.collider.GetComponent(_type) != null)
                 {
-                    if (onGetRootObjs != null)
-                        onGetRootObjs(new List<Transform>() { hitInfo.transform });
+                    _needDraw = true;
+                    hitTrans = hitInfo.collider.transform;
                 }
                 else
                 {
+                    hitTrans = null;
                     _needDraw = true;
-                    if (onLostSelect != null)
-                        onLostSelect();
                 }
+
+                if (onGetRootObjs != null)
+                    onGetRootObjs(hitTrans == null ? null : new Transform[] { hitTrans });
             }
             if (_needDraw)
             {
                 _startPos = Input.mousePosition;
             }
         }
-        else if (Input.GetMouseButtonUp(0))
+        else if (_needDraw && Input.GetMouseButtonUp(0))
         {
-            _needDraw = false;
-            if (_type != null && onGetRootObjs != null)
+            if (_type != null && onGetRootObjs != null && Vector3.Distance(_startPos, Input.mousePosition) > 1)
             {
                 var selectd = SelectObjectRect(_camera, _type, _startPos, Input.mousePosition);
-                if (selectd.Count > 0)
-                {
-                    onGetRootObjs(selectd);
-                } 
+                onGetRootObjs(selectd == null ? null : selectd.ToArray());
             }
+            else if(hitTrans == null)
+            {
+                onGetRootObjs(null);
+            }
+            _needDraw = false;
         }
     }
 
