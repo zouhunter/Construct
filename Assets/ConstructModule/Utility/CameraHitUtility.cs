@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System;
 [System.Serializable]
-public class HitUtility
+public class CameraHitUtility
 {
     private static Ray ray;
     private static RaycastHit[] hits;

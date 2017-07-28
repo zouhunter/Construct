@@ -12,11 +12,11 @@ public static class InputUtility {
     /// 在Update中调用判断是否进行了双击
     /// </summary>
     /// <returns></returns>
-    public static bool HaveClickMouseTwice(ref float Timer, int keyNum)
+    public static bool HaveClickMouseTwice(ref float Timer,int keyNum, float time = 1)
     {
         if (Input.GetMouseButtonDown(keyNum))
         {
-            return HaveExecuteTwicePerSecond(ref Timer);
+            return HaveExecuteTwicePerSecond(ref Timer, time);
         }
         return false;
     }
@@ -28,9 +28,9 @@ public static class InputUtility {
     /// <param name="timer"></param>
     /// <param name="executeOnce"></param>
     /// <returns></returns>
-    public static bool HaveExecuteTwicePerSecond(ref float timer)
+    public static bool HaveExecuteTwicePerSecond(ref float timer, float time = 1)
     {
-        if (Time.time - timer < 1f)
+        if (Time.time - timer < time)
         {
             return true;
         }

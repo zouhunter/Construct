@@ -7,51 +7,48 @@ using ListView;
 
 public class BuildTest : MonoBehaviour {
     public SelectDrawer drawer;
-    private BuildingItem activeItem;
     public BuildingCtrl buildCtrl;
     public ItemsHolderObj holderObj;
     public ScrollRect scrollRect;
-
+    public QuadDrawer quadDrawer;
     void Start () {
         buildCtrl.Init(holderObj);
         drawer.InitSelectDrawer<BuildingItem>();
-        buildCtrl.onBuildOK = (x) => {
-            drawer.enabled = true;
-        };
-            
-        buildCtrl.onMoveStateChanged = (x) => {
-            drawer.enabled = !x;
-            if(!x) activeItem.SetBuildState(BuildState.Normal);
-        };
-        drawer.onGetRootObjs = (x) =>
+        drawer.onGetRootObjs = OnSelectedItems;
+        buildCtrl.onBuildOK = (x) =>
         {
-            if(x != null && x.Length > 0)
-            {
-                activeItem = x[0].GetComponent<BuildingItem>();
-                activeItem.SetBuildState(BuildState.Inbuild);
-                buildCtrl.ActiveItem(activeItem);
-                drawer.enabled = false;
-            }
-            else
-            {
-                buildCtrl.ActiveItem(null);
-            }
+            quadDrawer.ClearQuad();
         };
+    }
+    private void OnSelectedItems(Transform[] trans)
+    {
+        if (trans != null && trans.Length > 0)
+        {
+            var activeItem = trans[0].GetComponent<BuildingItem>();
+            activeItem.SetBuildState(BuildState.Inbuild);
+            buildCtrl.ActiveItem(activeItem);
+            drawer.enabled = false;
+        }
+        else
+        {
+            buildCtrl.ActiveItem(null);
+        }
     }
     private void Update()
     {
-        HitUtility.Update(100);
+        CameraHitUtility.Update(100);
 
         if (buildCtrl.Update())
         {
+            quadDrawer.DrawQuad(buildCtrl.activeItem.InstallAble, buildCtrl.activeItem.quad);
+            drawer.enabled = false;
             scrollRect.enabled = false;
         }
         else
         {
+            drawer.enabled = true;
             scrollRect.enabled = true;
         }
     }
-   
-	// Update is called once per frame
 	
 }
