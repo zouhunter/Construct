@@ -4,20 +4,98 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
+using ListView;
+using System;
 
+[System.Serializable]
 public class BuildingCtrl
 {
-    private List<BuildingItem> allBuildings = new List<BuildingItem>();
+    public Transform parent;
+    public BuildItemUI prefab;
 
-    public void RemoveBuilding(BuildingItem item)
+    private ItemsHolderObj holderObj;
+    private List<BuildingItem> allBuildings = new List<BuildingItem>();
+    private GameObject activeItem;
+    public const string movePosTag = "MovePos";
+    private RaycastHit hit;
+    private SyncListItemCreater<BuildItemUI> creater;
+    public UnityAction<BuildingItem> onBuildOK;
+    public UnityAction<bool> onMoveStateChanged;
+    private float timer;
+    private float lastDistence = 10;
+    public bool Update()
+    {
+        if (activeItem != null)
+        {
+            UpdateNewItemTargetPos();
+            return true;
+        }
+        return false;
+    }
+    private void UpdateNewItemTargetPos()
+    {
+        if (HitUtility.GetOneHit(movePosTag, ref hit))
+        {
+            activeItem.transform.position = hit.point;
+            lastDistence = Vector3.Distance(Camera.main.transform.position, hit.point);
+        }
+        else
+        {
+            activeItem.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, lastDistence));
+        }
+        if (InputUtility.HaveClickMouseTwice(ref timer, 0))
+        {
+            BuildingItem item = activeItem.GetComponent<BuildingItem>();
+            AddNewBuiliding(item);
+            activeItem = null;
+            if (onBuildOK != null)
+            {
+                onBuildOK(item);
+            }
+        }
+        else if (InputUtility.HaveClickMouseTwice(ref timer, 1))
+        {
+            BuildingItem item = activeItem.GetComponent<BuildingItem>();
+            RemoveBuilding(item);
+            GameObject.Destroy(activeItem);
+            activeItem = null;
+            if (onBuildOK != null){
+                onBuildOK(null);
+            }
+        }
+    }
+    internal void Init(ItemsHolderObj holderObj)
+    {
+        this.holderObj = holderObj;
+        creater = new SyncListItemCreater<BuildItemUI>(parent, prefab);
+        CreateDefult();
+    }
+    public void ActiveItem(BuildingItem item)
+    {
+        activeItem = item == null ? null : item.gameObject;
+    }
+    private void CreateDefult()
+    {
+        creater.CreateItems(holderObj.ItemHoldList.Count);
+        for (int i = 0; i < creater.CreatedItems.Count; i++)
+        {
+            var item = creater.CreatedItems[i];
+            item.InitData(holderObj.ItemHoldList[i]);
+            item.onButtonClicked = OnClickItem;
+        }
+    }
+    private void OnClickItem(GameObject hold)
+    {
+        activeItem = GameObject.Instantiate(hold);
+    }
+    private void RemoveBuilding(BuildingItem item)
     {
         if (allBuildings.Contains(item))
         {
             allBuildings.Remove(item);
         }
     }
-
-    public void AddNewBuiliding(BuildingItem item)
+    private void AddNewBuiliding(BuildingItem item)
     {
         if (!allBuildings.Contains(item))
         {
@@ -25,36 +103,5 @@ public class BuildingCtrl
         }
     }
 
-    //public bool HaveBuild(Vector3 pos)
-    //{
-    //    for (int k = 0; k < allBuildings.Count; k++)
-    //    {
-    //        BuildingItem build = allBuildings[k];
-    //        //print(build);
-    //        for (int i = 0; i < build.buildingInfo.locat.GetLength(0); i++)
-    //        {
-    //            for (int j = 0; j < build.buildingInfo.locat.GetLength(1); j++)
-    //            {
-    //                Grid grid = build.buildingInfo.locat[i, j];
-    //                if (grid.pos.x == pos.x && grid.pos.z == pos.z)
-    //                {
-    //                    //垂直距离
-    //                    if (build.buildingInfo.height > Mathf.Abs(pos.y - build.transform.position.y))
-    //                    {
-    //                        return false;
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //    return true;
-    //}
-
-    //public GameObject OnCreateButtonClicked(GameObject itemPfb,Transform parent)
-    //{
-    //    GameObject item = SceneMain.Current.GetPoolObject(itemPfb,parent,true);
-    //    //item.GetComponentSecure<RecordingPrefab>().GetBuildItem();
-    //    return item;
-    //}
 }
 

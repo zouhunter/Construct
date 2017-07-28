@@ -1,42 +1,66 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.UI;
+using UnityEngine.Events;
+using UnityEngine;
+using UnityEngine.AI;
 using System;
-using UnityEngine.EventSystems;
-
-public class HitController
+[System.Serializable]
+public class HitUtility
 {
-    private Ray ray;
-    private RaycastHit hit;
-    private bool hited;
+    private static Ray ray;
+    private static RaycastHit[] hits;
+    private static bool hited;
 
-    public void Update()
+    public static void Update(float distence)
     {
         if (Camera.main)
         {
             ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit)) hited = true;
-            else hited = false;
+            hits = Physics.RaycastAll(ray, distence);
+            if (hits != null && hits.Length > 0)
+            {
+                hited = true;
+            }
+            else
+            {
+                hited = false;
+            }
         }
         else
         {
             hited = false;
         }
     }
-    public bool GetHitCollider(ref Collider collider)
+    public static bool GetOneHit(string layerName,ref RaycastHit outHit)
     {
-        if (hited && hit.collider != null)
+        if (hited && hits!= null && hits.Length > 0)
         {
-            collider = hit.collider;
-            return true;
+            foreach (var item in hits)
+            {
+                if (item.collider.gameObject.layer == LayerMask.NameToLayer(layerName))
+                {
+                    outHit = item;
+                    return true;
+                }
+            }
+            return false;
         }
         return false;
     }
-    public bool GetHitPoint(ref Vector3 pos)
+    public static bool GetHits(string layerName, ref List<RaycastHit> outHits)
     {
-        if (hited)
+        if (hited && hits != null && hits.Length > 0)
         {
-            pos = hit.point;
-            return true;
+            outHits.Clear();
+            foreach (var item in hits)
+            {
+                if (item.collider.gameObject.layer == LayerMask.NameToLayer(layerName))
+                {
+                    outHits.Add(item);
+                }
+            }
+            return false;
         }
         return false;
     }

@@ -135,7 +135,7 @@ public class SelectDrawer : MonoBehaviour
             var viewPos = camera.WorldToScreenPoint(trans.position);
             if (IsPointInBox(viewPos, startPos, endPos))
             {
-                items.Add(item as Transform);
+                items.Add(item.GetComponent<Transform>());
             }
         }
         return items.ToArray();

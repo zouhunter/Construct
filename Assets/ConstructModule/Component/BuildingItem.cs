@@ -11,6 +11,7 @@ public class BuildingItem : MonoBehaviour
     public BuildState state = BuildState.Normal;
     private NavMeshAgent agent;
     private UnityEngine.AI.NavMeshObstacle obstacle;
+    private NavMeshHit hit;
     private void OnEnable()
     {
         if (state == BuildState.Normal) SetBuildState(BuildState.Normal);
@@ -47,6 +48,7 @@ public class BuildingItem : MonoBehaviour
                 agent.enabled = true;
             }
             agent.speed = moveSpeed;
+            agent.obstacleAvoidanceType = ObstacleAvoidanceType.GoodQualityObstacleAvoidance;
         }
     }
     public void WorpToNewPos(Vector3 newPos)
