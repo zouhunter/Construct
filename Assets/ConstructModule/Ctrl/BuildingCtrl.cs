@@ -14,7 +14,7 @@ public class BuildingCtrl
     public BuildItemUI prefab;
     private ItemsHolderObj holderObj;
     private List<BuildingItem> allBuildings = new List<BuildingItem>();
-    public BuildingItem activeItem;
+    public BuildingItem ActiveItem { get; private set; }
     public const string movePosTag = "MovePos";
     private RaycastHit hit;
     private SyncListItemCreater<BuildItemUI> creater;
@@ -22,28 +22,40 @@ public class BuildingCtrl
     private UnityEngine.AI.NavMeshObstacle[] defultobstacles;
     private float timer;
     private float lastDistence = 10;
-
     public bool Update()
     {
-        if (activeItem != null)
+        if (ActiveItem != null)
         {
             UpdateNewItemTargetPos();
-            return activeItem!=null;
+            return ActiveItem!=null;
         }
         return false;
+    }
+    public void RemoveBuilding(BuildingItem item)
+    {
+        if (allBuildings.Contains(item))
+        {
+            allBuildings.Remove(item);
+        }
+    }
+    public void AddNewBuiliding(BuildingItem item)
+    {
+        if (!allBuildings.Contains(item))
+        {
+            allBuildings.Add(item);
+        }
     }
     private void UpdateNewItemTargetPos()
     {
         if (CameraHitUtility.GetOneHit(movePosTag, ref hit))
         {
-            var installAble = activeItem.UpdatePos(hit.point);
+            ActiveItem.UpdateBuilding(hit.point);
             lastDistence = Vector3.Distance(Camera.main.transform.position, hit.point);
-            if (installAble && InputUtility.HaveClickMouseTwice(ref timer, 0, 0.5f))
+            if (ActiveItem.quadInfo.installAble && InputUtility.HaveClickMouseTwice(ref timer, 0, 0.5f))
             {
-                BuildingItem item = activeItem.GetComponent<BuildingItem>();
-                item.SetBuildState(BuildState.Normal);
+                BuildingItem item = ActiveItem.GetComponent<BuildingItem>();
                 AddNewBuiliding(item);
-                activeItem = null;
+                ActiveItem = null;
                 if (onBuildOK != null)
                 {
                     onBuildOK(item);
@@ -52,15 +64,15 @@ public class BuildingCtrl
         }
         else
         {
-            activeItem.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, lastDistence));
+            ActiveItem.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, lastDistence));
         }
 
         if (InputUtility.HaveClickMouseTwice(ref timer, 1, 0.5f))
         {
-            BuildingItem item = activeItem.GetComponent<BuildingItem>();
+            BuildingItem item = ActiveItem.GetComponent<BuildingItem>();
             RemoveBuilding(item);
-            GameObject.Destroy(activeItem.gameObject);
-            activeItem = null;
+            GameObject.Destroy(ActiveItem.gameObject);
+            ActiveItem = null;
             if (onBuildOK != null)
             {
                 onBuildOK(null);
@@ -74,10 +86,9 @@ public class BuildingCtrl
         CreateDefult();
         defultobstacles = GameObject.FindObjectsOfType<UnityEngine.AI.NavMeshObstacle>();
     }
-    public void ActiveItem(BuildingItem item)
+    public void ActiveTargetItem(BuildingItem item)
     {
-        activeItem = item;
-        if (activeItem) activeItem.SetBuildState(BuildState.Inbuild);
+        ActiveItem = item;
     }
     private void CreateDefult()
     {
@@ -91,22 +102,7 @@ public class BuildingCtrl
     }
     private void OnClickItem(GameObject hold)
     {
-        activeItem = GameObject.Instantiate(hold).GetComponent<BuildingItem>();
-        if (activeItem) activeItem.SetBuildState(BuildState.Inbuild);
-    }
-    private void RemoveBuilding(BuildingItem item)
-    {
-        if (allBuildings.Contains(item))
-        {
-            allBuildings.Remove(item);
-        }
-    }
-    private void AddNewBuiliding(BuildingItem item)
-    {
-        if (!allBuildings.Contains(item))
-        {
-            allBuildings.Add(item);
-        }
+        ActiveItem = GameObject.Instantiate(hold).GetComponent<BuildingItem>();
     }
     private bool IgnoreObstacle(Vector3 targetPath)
     {

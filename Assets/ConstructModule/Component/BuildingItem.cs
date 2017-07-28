@@ -7,30 +7,23 @@ using System.Collections.Generic;
 
 public class BuildingItem : MonoBehaviour
 {
-    public BuildState state = BuildState.Normal;
+    public QuadInfo quadInfo;
     private BoxCollider _boxCollider;
     private RaycastHit[] hits;
-    private Vector3 oldPos;
-    public bool InstallAble;
-    public Vector3[] quad = new Vector3[4];
     private Vector3 colliderScale;
+    public UnityAction<QuadInfo> onPositionChanged;
     private void OnEnable()
     {
+        quadInfo = new global::QuadInfo();
         _boxCollider = GetComponent<BoxCollider>();
-        if (state == BuildState.Normal)
-            SetBuildState(BuildState.Normal);
-    }
-    public void SetBuildState(BuildState state)
-    {
-        this.state = state;
     }
 
-    public bool UpdatePos(Vector3 newPos)
+    public void UpdateBuilding(Vector3 newPos)
     {
         transform.position = newPos;
         colliderScale = BuildingUtility.ScaleAndCubeScale(transform.localScale, _boxCollider.size);
-        quad = UpdateQuad(transform.position,colliderScale.x * 1.2f,colliderScale.z * 1.2f);
-        return JudePosition();
+        quadInfo.quad = UpdateQuad(transform.position,colliderScale.x * 1.2f,colliderScale.z * 1.2f);
+        JudePosition();
     }
     private static Vector3[] UpdateQuad(Vector3 center,float wigth,float length)
     {
@@ -41,7 +34,7 @@ public class BuildingItem : MonoBehaviour
         quad[3] = center + new Vector3(wigth * 0.5f, 0.01f, length * 0.5f);
         return quad;
     }
-    private bool JudePosition()
+    private void JudePosition()
     {
         hits = Physics.BoxCastAll(
             _boxCollider.center + transform.position,
@@ -51,16 +44,15 @@ public class BuildingItem : MonoBehaviour
             10,
             LayerMask.GetMask(BuildingUtility.MoveItemLayerName));
 
-        InstallAble = true;
+        quadInfo.installAble = true;
 
         foreach (var item in hits)
         {
             if (item.collider.gameObject != gameObject)
             {
-                InstallAble = false;
+                quadInfo.installAble = false;
             }
         }
-        return InstallAble;
     }
 }
 

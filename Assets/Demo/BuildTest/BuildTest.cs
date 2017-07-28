@@ -25,13 +25,12 @@ public class BuildTest : MonoBehaviour {
         if (trans != null && trans.Length > 0)
         {
             var activeItem = trans[0].GetComponent<BuildingItem>();
-            activeItem.SetBuildState(BuildState.Inbuild);
-            buildCtrl.ActiveItem(activeItem);
+            buildCtrl.ActiveTargetItem(activeItem);
             drawer.enabled = false;
         }
         else
         {
-            buildCtrl.ActiveItem(null);
+            buildCtrl.ActiveTargetItem(null);
         }
     }
     private void Update()
@@ -40,7 +39,7 @@ public class BuildTest : MonoBehaviour {
 
         if (buildCtrl.Update())
         {
-            quadDrawer.DrawQuad(buildCtrl.activeItem.InstallAble, buildCtrl.activeItem.quad);
+            quadDrawer.DrawQuad(buildCtrl.ActiveItem.quadInfo);
             drawer.enabled = false;
             scrollRect.enabled = false;
         }
