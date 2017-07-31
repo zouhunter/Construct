@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class BuildItemSelectDrawer : SelectDrawer
 {
+    private static Material lineMaterial;
     private List<QuadInfo> infos = new List<QuadInfo>();
     private QuadInfo[] quadInfos
     {
@@ -33,6 +34,8 @@ public class BuildItemSelectDrawer : SelectDrawer
     protected override void Awake()
     {
         base.Awake();
+        if (lineMaterial == null) lineMaterial = new Material(Shader.Find("Custom/Lines"));
+
         InitSelectDrawer<BuildingItem>();
         onGetRootObjs += DrawQuad;
     }
@@ -40,6 +43,7 @@ public class BuildItemSelectDrawer : SelectDrawer
     {
         base.OnPostRender();
         DrawQuaderInfos();
+        DrawQuadTriangles();
     }
     private void DrawQuaderInfos()
     {
@@ -76,7 +80,32 @@ public class BuildItemSelectDrawer : SelectDrawer
         }
        
     }
+    private void DrawQuadTriangles()
+    {
+        if (quadInfos == null) return;
+        foreach (var quadInfo in quadInfos)
+        {
+            if (quadInfo != null && quadInfo.viewPosTrangles != null && quadInfo.viewPosTrangles.Length % 3 == 0)
+            {
+                DrawTriangles(quadInfo.viewPosTrangles, Color.blue);
+            }
+        }
+    }
+    private void DrawTriangles(Vector3[] lines, Color color)
+    {
+        lineMaterial.SetPass(0);
+        GL.Begin(GL.TRIANGLES);
+        GL.Color(color);
 
+        for (int i = 0; i < lines.Length; i += 3)
+        {
+            GL.Vertex(lines[i]);
+            GL.Vertex(lines[i + 1]);
+            GL.Vertex(lines[i + 2]);
+        }
+
+        GL.End();
+    }
     private void DrawQuad(Transform[] selectItems)
     {
         if (selectItems != null && selectItems.Length > 0)

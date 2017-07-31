@@ -8,4 +8,5 @@ public class QuadInfo
 {
     public bool installAble;
     public Vector3[] quad;
+    public Vector3[] viewPosTrangles;
 }
