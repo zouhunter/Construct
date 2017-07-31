@@ -74,8 +74,8 @@ namespace BundleUISystem
         /// <param name="onCreate"></param>
         public void GetGameObjectInfo(BundleInfo itemInfo)
         {
-            var trigger = itemInfo as BundleInfo;
 #if AssetBundleTools
+            var trigger = itemInfo as BundleInfo;
             assetLoader.LoadAssetFromUrlAsync<GameObject>(trigger.bundleName, trigger.assetName, (x) =>
             {
                 if (_root == null)
