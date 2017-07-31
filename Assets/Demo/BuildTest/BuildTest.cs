@@ -8,17 +8,12 @@ using ListView;
 public class BuildTest : MonoBehaviour {
     public SelectDrawer drawer;
     public BuildingCtrl buildCtrl;
-    public ItemsHolderObj holderObj;
     public ScrollRect scrollRect;
-    public QuadDrawer quadDrawer;
+    public BuildItemSelectDrawer quadDrawer;
     void Start () {
-        buildCtrl.Init(holderObj);
+        buildCtrl.Init();
         drawer.InitSelectDrawer<BuildingItem>();
-        drawer.onGetRootObjs = OnSelectedItems;
-        buildCtrl.onBuildOK = (x) =>
-        {
-            quadDrawer.ClearQuad();
-        };
+        drawer.onGetRootObjs += OnSelectedItems;
     }
     private void OnSelectedItems(Transform[] trans)
     {
@@ -36,18 +31,7 @@ public class BuildTest : MonoBehaviour {
     private void Update()
     {
         CameraHitUtility.Update(100);
-
-        if (buildCtrl.Update())
-        {
-            quadDrawer.DrawQuad(buildCtrl.ActiveItem.quadInfo);
-            drawer.enabled = false;
-            scrollRect.enabled = false;
-        }
-        else
-        {
-            drawer.enabled = true;
-            scrollRect.enabled = true;
-        }
+        buildCtrl.Update();
     }
 	
 }

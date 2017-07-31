@@ -13,22 +13,34 @@ using RuntimeGizmos;
     //private Transform[] lastTrans;
     private void OnEnable()
     {
-        drawer.onGetRootObjs = (x) =>
-        {
-            //lastTrans = x;
-            var root = transGizmo.targetCtrl.SetTargets(x);
-            if (root != null)
-            {
-                lastTargetPos = root.position;
-                dragCamera.SetTarget(lastTargetPos);
-            }
-        };
+        drawer.onGetRootObjs += OnSelectSelected;
         transGizmo.targetCtrl.onTransormingStateChanged = (x) => {
             drawer.enabled = !x;
         };
         drawer.InitSelectDrawer<MeshRenderer>();
     }
-   
+    private void OnSelectSelected(Transform[] x)
+    {
+        if(x== null)
+        {
+            transGizmo.targetCtrl.SetTargets(null);
+        }
+        else
+        {
+            //lastTrans = x;
+            var root = transGizmo.targetCtrl.SetTargets(System.Array.ConvertAll<Transform,BuildingItem>(x,y=>y.GetComponent<BuildingItem>()));
+            if (root != null)
+            {
+                lastTargetPos = root.position;
+                dragCamera.SetTarget(lastTargetPos);
+            }
+        }
+       
+    }
+    private void OnDisable()
+    {
+        drawer.onGetRootObjs += OnSelectSelected;
+    }
     private void OnGUI()
     {
         if (GUILayout.Button("2d-3d"))

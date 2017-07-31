@@ -14,22 +14,22 @@ public class SelectDrawer : MonoBehaviour
     private bool _needDraw;
 
     public Type _type;
-    public UnityAction<Transform[]> onGetRootObjs;
+    public event UnityAction<Transform[]> onGetRootObjs;
     private Transform hitTrans = null;
     public void InitSelectDrawer<T>() where T : Component
     {
         this._type = typeof(T);
     }
 
-    private void Awake()
+    protected virtual void Awake()
     {
         _camera = GetComponent<Camera>();
     }
-    private void OnEnable()
+    protected virtual void OnEnable()
     {
         _needDraw = false;
     }
-    private void OnPostRender()
+    protected virtual void OnPostRender()
     {
         if (_needDraw)
         {
@@ -78,6 +78,7 @@ public class SelectDrawer : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
         {
             _needDraw = false;
+            return;
         }
 
         if (Input.GetMouseButtonDown(0))

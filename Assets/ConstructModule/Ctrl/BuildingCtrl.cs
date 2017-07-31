@@ -12,7 +12,7 @@ public class BuildingCtrl
 {
     public Transform parent;
     public BuildItemUI prefab;
-    private ItemsHolderObj holderObj;
+    public ItemsHolderObj holderObj;
     private List<BuildingItem> allBuildings = new List<BuildingItem>();
     public BuildingItem ActiveItem { get; private set; }
     public const string movePosTag = "MovePos";
@@ -22,14 +22,12 @@ public class BuildingCtrl
     private UnityEngine.AI.NavMeshObstacle[] defultobstacles;
     private float timer;
     private float lastDistence = 10;
-    public bool Update()
+    public void Update()
     {
         if (ActiveItem != null)
         {
             UpdateNewItemTargetPos();
-            return ActiveItem!=null;
         }
-        return false;
     }
     public void RemoveBuilding(BuildingItem item)
     {
@@ -54,6 +52,7 @@ public class BuildingCtrl
             if (ActiveItem.quadInfo.installAble && InputUtility.HaveClickMouseTwice(ref timer, 0, 0.5f))
             {
                 BuildingItem item = ActiveItem.GetComponent<BuildingItem>();
+                item.buildState = BuildState.normal;
                 AddNewBuiliding(item);
                 ActiveItem = null;
                 if (onBuildOK != null)
@@ -79,16 +78,26 @@ public class BuildingCtrl
             }
         }
     }
-    internal void Init(ItemsHolderObj holderObj)
+    internal void Init()
     {
-        this.holderObj = holderObj;
         creater = new SyncListItemCreater<BuildItemUI>(parent, prefab);
         CreateDefult();
         defultobstacles = GameObject.FindObjectsOfType<UnityEngine.AI.NavMeshObstacle>();
     }
     public void ActiveTargetItem(BuildingItem item)
     {
-        ActiveItem = item;
+        //正在建造中无法选择其他对象
+        if(ActiveItem!= null && ActiveItem.buildState == BuildState.inbuild)
+        {
+            return;
+        }
+        else
+        {
+            ActiveItem = item;
+            if (ActiveItem != null)
+               ActiveItem.buildState = BuildState.inbuild;
+        }
+       
     }
     private void CreateDefult()
     {
@@ -102,7 +111,8 @@ public class BuildingCtrl
     }
     private void OnClickItem(GameObject hold)
     {
-        ActiveItem = GameObject.Instantiate(hold).GetComponent<BuildingItem>();
+        var item = GameObject.Instantiate(hold).GetComponent<BuildingItem>();
+        ActiveTargetItem(item);
     }
     private bool IgnoreObstacle(Vector3 targetPath)
     {
