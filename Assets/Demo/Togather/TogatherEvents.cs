@@ -40,6 +40,8 @@ public static class TogatherEvents {
     public static string onViewAngleChanged_u;//观察点角度发生改变
 
     public static string onCenterViewChanged;//视角中心变化 
+    public static string onCreatePoint;//创建预览点
+
     static TogatherEvents()
     {
         var type = typeof(TogatherEvents);

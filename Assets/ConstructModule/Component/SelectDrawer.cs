@@ -44,10 +44,10 @@ public sealed class SelectDrawer : MonoBehaviour
 
         GL.PushMatrix();
         lineMaterial.SetPass(0);
-        GL.Color(Color.green);
         //坐标转化
         GL.LoadPixelMatrix();
         GL.Begin(GL.LINES);
+        GL.Color(Color.green);
 
         for (int i = 0; i < linePoints.Length; ++i)
         {
@@ -71,11 +71,12 @@ public sealed class SelectDrawer : MonoBehaviour
 
     private void Update()
     {
-        if (EventSystem.current.IsPointerOverGameObject())
+        if (EventSystem.current.IsPointerOverGameObject() )
         {
             _needDraw = false;
             return;
         }
+
 
         if (Input.GetMouseButtonDown(0))
         {

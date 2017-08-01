@@ -24,7 +24,7 @@ public class LocalListPanel : MonoBehaviour
 
         buildCtrl.Init();
         quadDrawer.onGetRootObjs += SelectItem;
-        transGizmo.targetCtrl.onTransormingStateChanged = (x) =>
+        transGizmo.targetCtrl.onTransormingStateChanged += (x) =>
         {
             quadDrawer.enabled = !x;
         };
@@ -34,14 +34,14 @@ public class LocalListPanel : MonoBehaviour
     }
     private void RegiserEventOfBuildItem()
     {
-        transGizmo.targetCtrl.onRotationChanged = () =>
+        transGizmo.targetCtrl.onRotationChanged += () =>
         {
             if (activeItem != null)
             {
                 SceneMain.Current.InvokeEvents(TogatherEvents.onRotateChanged_w, activeItem.transform.eulerAngles.y);
             }
         };
-        transGizmo.targetCtrl.onLocalScaleChanged = () =>
+        transGizmo.targetCtrl.onLocalScaleChanged += () =>
         {
             if (activeItem != null)
             {
@@ -161,14 +161,14 @@ public class LocalListPanel : MonoBehaviour
     {
         if (trans == null || trans.Length == 0)
         {
-            transGizmo.targetCtrl.SetTargets(null);
+            transGizmo.targetCtrl.SetTargets(EnableState.Clamp,null);
         }
         else
         {
             activeItem = trans[0].GetComponent<BuildingItem>();
 
             //lastTrans = x;
-            var root = transGizmo.targetCtrl.SetTargets(new BuildingItem[] { activeItem });
+            var root = transGizmo.targetCtrl.SetTargets(EnableState.Clamp, activeItem.transform);
             if (root != null)
             {
                 lastTargetPos = root.position;

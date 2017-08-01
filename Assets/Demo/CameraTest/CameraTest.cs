@@ -14,7 +14,7 @@ using RuntimeGizmos;
     private void OnEnable()
     {
         drawer.onGetRootObjs += OnSelectSelected;
-        transGizmo.targetCtrl.onTransormingStateChanged = (x) => {
+        transGizmo.targetCtrl.onTransormingStateChanged += (x) => {
             drawer.enabled = !x;
         };
     }
@@ -22,12 +22,12 @@ using RuntimeGizmos;
     {
         if(x== null)
         {
-            transGizmo.targetCtrl.SetTargets(null);
+            transGizmo.targetCtrl.SetTargets(EnableState.Clamp,null);
         }
         else
         {
             //lastTrans = x;
-            var root = transGizmo.targetCtrl.SetTargets(System.Array.ConvertAll<Transform,BuildingItem>(x,y=>y.GetComponent<BuildingItem>()));
+            var root = transGizmo.targetCtrl.SetTargets(EnableState.Clamp,x);
             if (root != null)
             {
                 lastTargetPos = root.position;

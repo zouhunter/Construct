@@ -5,18 +5,25 @@ using UnityEngine.Events;
 using UnityEngine;
 using System;
 
-public class QuickToolPanel : MonoBehaviour {
+public class QuickToolPanel : MonoBehaviour
+{
     public ItemsHolderObj holderObj;
     private LoadSaveCtrl loadSave;
+
     string filePath = "";
-    [SerializeField]private Button m_back;
-    [SerializeField]private Button m_forward;
+    [SerializeField]
+    private Button m_back;
+    [SerializeField]
+    private Button m_forward;
     [SerializeField]
     private Button m_load;
     [SerializeField]
     private Button m_save;
     [SerializeField]
     private Toggle m_top;
+
+    [SerializeField]
+    private Button m_naviPoint;
     private DragCamera m_DgCamera;
     private Vector3 centerView;
     private void Awake()
@@ -28,7 +35,14 @@ public class QuickToolPanel : MonoBehaviour {
         m_save.onClick.AddListener(RecordToJson);
         m_load.onClick.AddListener(LoadFromJson);
         m_top.onValueChanged.AddListener(OnChangeView);
+        m_naviPoint.onClick.AddListener(OnCreateNaviPoint);
     }
+
+    private void OnCreateNaviPoint()
+    {
+        SceneMain.Current.InvokeEvents(TogatherEvents.onCreatePoint);
+    }
+
     private void Start()
     {
         m_DgCamera = Camera.main.GetComponent<DragCamera>();
@@ -48,7 +62,7 @@ public class QuickToolPanel : MonoBehaviour {
     {
         UnDoUtility.ReDoOneStep();
     }
-   
+
     private void RecordToJson()
     {
         var items = FindObjectsOfType<BuildingItem>();
