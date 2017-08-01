@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class BuildItemSelectDrawer : SelectDrawer
 {
-    private static Material lineMaterial;
     private List<QuadInfo> infos = new List<QuadInfo>();
     private QuadInfo[] quadInfos
     {
@@ -34,7 +33,6 @@ public class BuildItemSelectDrawer : SelectDrawer
     protected override void Awake()
     {
         base.Awake();
-        if (lineMaterial == null) lineMaterial = new Material(Shader.Find("Custom/Lines"));
 
         InitSelectDrawer<BuildingItem>();
         onGetRootObjs += DrawQuad;
@@ -53,10 +51,10 @@ public class BuildItemSelectDrawer : SelectDrawer
             if (quadInfo != null && quadInfo.quad != null && quadInfo.quad.Length == 4)
             {
                 GL.PushMatrix();
-                if (!quadInfo.installAble) red.SetPass(0);
-                else green.SetPass(0);
-
+                lineMaterial.SetPass(0);
                 GL.Begin(GL.LINES);
+                if (!quadInfo.installAble) GL.Color(Color.red);
+                else GL.Color(Color.green);
 
                 for (int i = 0; i < quadInfo.quad.Length; ++i)
                 {

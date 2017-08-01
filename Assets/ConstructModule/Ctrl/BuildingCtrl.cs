@@ -19,7 +19,7 @@ public class BuildingCtrl
     private RaycastHit hit;
     private SyncListItemCreater<BuildItemUI> creater;
     public UnityAction<BuildingItem> onBuildOK;
-    private UnityEngine.AI.NavMeshObstacle[] defultobstacles;
+
     private float timer;
     private float lastDistence = 10;
     public void Update()
@@ -82,7 +82,6 @@ public class BuildingCtrl
     {
         creater = new SyncListItemCreater<BuildItemUI>(parent, prefab);
         CreateDefult();
-        defultobstacles = GameObject.FindObjectsOfType<UnityEngine.AI.NavMeshObstacle>();
     }
     public void ActiveTargetItem(BuildingItem item)
     {
@@ -95,7 +94,13 @@ public class BuildingCtrl
         {
             ActiveItem = item;
             if (ActiveItem != null)
-               ActiveItem.buildState = BuildState.inbuild;
+            {
+                ActiveItem.buildState = BuildState.inbuild;
+                ActiveItem.onPositionChanged = (x) =>
+                {
+                    SceneMain.Current.InvokeEvents<Vector3>(TogatherEvents.onPositionChanged_w, x);
+                };
+            }
         }
        
     }
@@ -114,22 +119,7 @@ public class BuildingCtrl
         var item = GameObject.Instantiate(hold).GetComponent<BuildingItem>();
         ActiveTargetItem(item);
     }
-    private bool IgnoreObstacle(Vector3 targetPath)
-    {
-        foreach (var item in defultobstacles)
-        {
-
-        }
-        foreach (var item in allBuildings)
-        {
-            var ob = item.GetComponent<UnityEngine.AI.NavMeshObstacle>();
-            if (IsPointInBox(targetPath, ob.center, ob.size))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
+   
     private static bool IsPointInBox(Vector3 point, Vector3 centerPos, Vector3 size)
     {
         var halfBoxWeight = size.x * 0.5f;

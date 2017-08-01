@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System;
 public class SelectDrawer : MonoBehaviour
 {
-    public Material green;
-    public Material red;
+    protected Material lineMaterial;
+
     private Camera _camera;
     private Vector3 _startPos;
     private bool _needDraw;
@@ -23,6 +23,7 @@ public class SelectDrawer : MonoBehaviour
 
     protected virtual void Awake()
     {
+        if (lineMaterial == null) lineMaterial = new Material(Shader.Find("Custom/Lines"));
         _camera = GetComponent<Camera>();
     }
     protected virtual void OnEnable()
@@ -47,8 +48,8 @@ public class SelectDrawer : MonoBehaviour
         linePoints[3] = _startPos + Vector3.right * (endPos.x - _startPos.x);
 
         GL.PushMatrix();
-        green.SetPass(0);
-
+        lineMaterial.SetPass(0);
+        GL.Color(Color.green);
         //坐标转化
         GL.LoadPixelMatrix();
         GL.Begin(GL.LINES);

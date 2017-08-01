@@ -5,12 +5,7 @@ using UnityEngine.Events;
 using UnityEngine;
 using RuntimeGizmos;
 
-public class Togather : MonoBehaviour
+public class Togather : SceneMain<Togather>
 {
-   
-    // Use this for initialization
-
-    private void OnDestroy()
-    {
-    }
+    
 }
