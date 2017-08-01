@@ -6,14 +6,12 @@ using UnityEngine;
 using ListView;
 
 public class BuildTest : MonoBehaviour {
-    public SelectDrawer drawer;
     public BuildingCtrl buildCtrl;
     public ScrollRect scrollRect;
     public BuildItemSelectDrawer quadDrawer;
     void Start () {
         buildCtrl.Init();
-        drawer.InitSelectDrawer<BuildingItem>();
-        drawer.onGetRootObjs += OnSelectedItems;
+        quadDrawer.onGetRootObjs += OnSelectedItems;
     }
     private void OnSelectedItems(Transform[] trans)
     {
@@ -21,7 +19,7 @@ public class BuildTest : MonoBehaviour {
         {
             var activeItem = trans[0].GetComponent<BuildingItem>();
             buildCtrl.ActiveTargetItem(activeItem);
-            drawer.enabled = false;
+            quadDrawer.enabled = false;
         }
         else
         {

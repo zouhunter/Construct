@@ -37,12 +37,16 @@ public class LocalListPanel : MonoBehaviour
         transGizmo.targetCtrl.onRotationChanged = () =>
         {
             if (activeItem != null)
+            {
                 SceneMain.Current.InvokeEvents(TogatherEvents.onRotateChanged_w, activeItem.transform.eulerAngles.y);
+            }
         };
         transGizmo.targetCtrl.onLocalScaleChanged = () =>
         {
             if (activeItem != null)
+            {
                 SceneMain.Current.InvokeEvents(TogatherEvents.onScaleChanged_w, activeItem.transform.localScale.x);
+            }
         };
     }
     /// <summary>
@@ -90,6 +94,10 @@ public class LocalListPanel : MonoBehaviour
             if (activeItem != null)
             {
                 var angle = activeItem.transform.localScale;
+                if (angle.x == 0)
+                {
+                    angle = new Vector3(1,1,1);
+                }
                 var plus = ((float)x) / angle.x;
                 angle *= plus;
                 activeItem.transform.localScale = angle;
@@ -165,6 +173,8 @@ public class LocalListPanel : MonoBehaviour
             {
                 lastTargetPos = root.position;
                 dragCamera.SetTarget(lastTargetPos);
+                SceneMain.Current.InvokeEvents<Vector3>(TogatherEvents.onCenterViewChanged, lastTargetPos);
+
             }
         }
 
@@ -180,7 +190,6 @@ public class LocalListPanel : MonoBehaviour
         bitem.GetViewPos(out data.viewAngle, out data.viewDistence);
 
         SceneMain.Current.InvokeEvents<TogatherEvents.ItemActiveData>(TogatherEvents.onItemActived_w, data);
-
     }
     private void Update()
     {
@@ -194,5 +203,4 @@ public class LocalListPanel : MonoBehaviour
             }
         }
     }
-
 }

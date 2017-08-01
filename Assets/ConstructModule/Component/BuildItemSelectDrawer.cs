@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine;
+using System;
 
-public class BuildItemSelectDrawer : SelectDrawer
+[RequireComponent(typeof(SelectDrawer))]
+public class BuildItemSelectDrawer : MonoBehaviour
 {
     private List<QuadInfo> infos = new List<QuadInfo>();
     private QuadInfo[] quadInfos
@@ -30,16 +32,38 @@ public class BuildItemSelectDrawer : SelectDrawer
         }
     }
     private List<BuildingItem> selected;
-    protected override void Awake()
+    public event UnityAction<Transform[]> onGetRootObjs;
+    private SelectDrawer selectDrawer;
+    protected void Awake()
     {
-        base.Awake();
-
-        InitSelectDrawer<BuildingItem>();
+        selectDrawer = GetComponent<SelectDrawer>();
+        selectDrawer.onGetRootObjs += OnGetISelectables;
         onGetRootObjs += DrawQuad;
     }
-    protected override void OnPostRender()
+    private void OnGetISelectables(ISelectable[] items)
     {
-        base.OnPostRender();
+        if (onGetRootObjs != null)
+        {
+            if (items == null)
+            {
+                onGetRootObjs.Invoke(null);
+            }
+            else
+            {
+                var bitems = Array.FindAll<ISelectable>(items, x => x is BuildingItem);
+                if (bitems == null||bitems.Length == 0)
+                {
+                    onGetRootObjs.Invoke(null);
+                }
+                else
+                {
+                    onGetRootObjs.Invoke(Array.ConvertAll<ISelectable, Transform>(bitems, x => x.TransformComponent));
+                }
+            }
+        }
+    }
+    protected void OnPostRender()
+    {
         DrawQuaderInfos();
         DrawQuadTriangles();
     }
@@ -51,7 +75,7 @@ public class BuildItemSelectDrawer : SelectDrawer
             if (quadInfo != null && quadInfo.quad != null && quadInfo.quad.Length == 4)
             {
                 GL.PushMatrix();
-                lineMaterial.SetPass(0);
+                selectDrawer.lineMaterial.SetPass(0);// lineMaterial.SetPass(0);
                 GL.Begin(GL.LINES);
                 if (!quadInfo.installAble) GL.Color(Color.red);
                 else GL.Color(Color.green);
@@ -91,7 +115,7 @@ public class BuildItemSelectDrawer : SelectDrawer
     }
     private void DrawTriangles(Vector3[] lines, Color color)
     {
-        lineMaterial.SetPass(0);
+        selectDrawer.lineMaterial.SetPass(0);
         GL.Begin(GL.TRIANGLES);
         GL.Color(color);
 

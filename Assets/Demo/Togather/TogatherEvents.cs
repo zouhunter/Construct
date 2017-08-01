@@ -39,6 +39,7 @@ public static class TogatherEvents {
     public static string onViewDistenceChanged_u;//观察点距离发生改变
     public static string onViewAngleChanged_u;//观察点角度发生改变
 
+    public static string onCenterViewChanged;//视角中心变化 
     static TogatherEvents()
     {
         var type = typeof(TogatherEvents);

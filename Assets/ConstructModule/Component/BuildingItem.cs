@@ -4,12 +4,14 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
+using System;
+
 public enum BuildState
 {
     normal,
     inbuild
 }
-public class BuildingItem : MonoBehaviour
+public class BuildingItem : MonoBehaviour, ISelectable
 {
     /// <summary>
     /// 方块信息
@@ -43,7 +45,7 @@ public class BuildingItem : MonoBehaviour
             }
         }
     }
-
+    public string deviceName;
     public QuadInfo quadInfo;
     [SerializeField]
     private Transform viewPos;
@@ -52,6 +54,15 @@ public class BuildingItem : MonoBehaviour
     private Vector3 colliderScale;
     public UnityAction<Vector3> onPositionChanged;
     public BuildState buildState = BuildState.normal;
+
+    public Transform TransformComponent
+    {
+        get
+        {
+            return transform;
+        }
+    }
+
     private void OnEnable()
     {
         quadInfo = new global::QuadInfo();
@@ -88,6 +99,14 @@ public class BuildingItem : MonoBehaviour
     {
         var dir = viewPos.position - transform.position;
         viewPos.position = dir.normalized * distence + transform.position;
+    }
+    public Vector3 GetViewPos()
+    {
+        return viewPos.localPosition;
+    }
+    public void SetViewPos(Vector3 pos)
+    {
+        viewPos.localPosition = pos;
     }
     public void GetViewPos(out float angle,out float distence)
     {

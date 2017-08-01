@@ -13,7 +13,7 @@ public class BuildingCtrl
     public Transform parent;
     public BuildItemUI prefab;
     public ItemsHolderObj holderObj;
-    private List<BuildingItem> allBuildings = new List<BuildingItem>();
+    //private List<BuildingItem> allBuildings = new List<BuildingItem>();
     public BuildingItem ActiveItem { get; private set; }
     public const string movePosTag = "MovePos";
     private RaycastHit hit;
@@ -29,20 +29,20 @@ public class BuildingCtrl
             UpdateNewItemTargetPos();
         }
     }
-    public void RemoveBuilding(BuildingItem item)
-    {
-        if (allBuildings.Contains(item))
-        {
-            allBuildings.Remove(item);
-        }
-    }
-    public void AddNewBuiliding(BuildingItem item)
-    {
-        if (!allBuildings.Contains(item))
-        {
-            allBuildings.Add(item);
-        }
-    }
+    //public void RemoveBuilding(BuildingItem item)
+    //{
+    //    if (allBuildings.Contains(item))
+    //    {
+    //        allBuildings.Remove(item);
+    //    }
+    //}
+    //public void AddNewBuiliding(BuildingItem item)
+    //{
+    //    if (!allBuildings.Contains(item))
+    //    {
+    //        allBuildings.Add(item);
+    //    }
+    //}
     private void UpdateNewItemTargetPos()
     {
         if (CameraHitUtility.GetOneHit(movePosTag, ref hit))
@@ -53,7 +53,8 @@ public class BuildingCtrl
             {
                 BuildingItem item = ActiveItem.GetComponent<BuildingItem>();
                 item.buildState = BuildState.normal;
-                AddNewBuiliding(item);
+                UnDoUtility.RecordStep(new TransformStepRecord(ActiveItem));
+                //AddNewBuiliding(item);
                 ActiveItem = null;
                 if (onBuildOK != null)
                 {
@@ -69,8 +70,8 @@ public class BuildingCtrl
         if (InputUtility.HaveClickMouseTwice(ref timer, 1, 0.5f))
         {
             BuildingItem item = ActiveItem.GetComponent<BuildingItem>();
-            RemoveBuilding(item);
-            GameObject.Destroy(ActiveItem.gameObject);
+            UnDoUtility.RecordStep(new DestroyStepRecord(item));
+            //RemoveBuilding(item);
             ActiveItem = null;
             if (onBuildOK != null)
             {
@@ -114,9 +115,11 @@ public class BuildingCtrl
             item.onButtonClicked = OnClickItem;
         }
     }
-    private void OnClickItem(GameObject hold)
+    private void OnClickItem(BuildItemHold hold)
     {
-        var item = GameObject.Instantiate(hold).GetComponent<BuildingItem>();
+        var item = GameObject.Instantiate(hold.prefab).GetComponent<BuildingItem>();
+        item.deviceName = hold.itemName;
+        UnDoUtility.RecordStep(new CreateStepRecord(item));
         ActiveTargetItem(item);
     }
    

@@ -5,32 +5,27 @@ using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 using System;
-public class SelectDrawer : MonoBehaviour
+public sealed class SelectDrawer : MonoBehaviour
 {
-    protected Material lineMaterial;
+    public Material lineMaterial { get; private set; }
 
     private Camera _camera;
     private Vector3 _startPos;
     private bool _needDraw;
 
-    public Type _type;
-    public event UnityAction<Transform[]> onGetRootObjs;
-    private Transform hitTrans = null;
-    public void InitSelectDrawer<T>() where T : Component
-    {
-        this._type = typeof(T);
-    }
+    public event UnityAction<ISelectable[]> onGetRootObjs;
+    private ISelectable hitTrans = null;
 
-    protected virtual void Awake()
+    private void Awake()
     {
         if (lineMaterial == null) lineMaterial = new Material(Shader.Find("Custom/Lines"));
         _camera = GetComponent<Camera>();
     }
-    protected virtual void OnEnable()
+    private void OnEnable()
     {
         _needDraw = false;
     }
-    protected virtual void OnPostRender()
+    private void OnPostRender()
     {
         if (_needDraw)
         {
@@ -84,29 +79,23 @@ public class SelectDrawer : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            if (_type == null)
+            RaycastHit hitInfo;
+            var hit = Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out hitInfo);
+
+            if (hit && hitInfo.collider != null && hitInfo.collider.GetComponent(typeof(ISelectable)) != null)
             {
                 _needDraw = true;
+                hitTrans = hitInfo.collider.GetComponent(typeof(ISelectable)) as ISelectable;
             }
             else
             {
-                RaycastHit hitInfo;
-                var hit = Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out hitInfo);
-                
-                if (hit && hitInfo.collider != null && hitInfo.collider.GetComponent(_type) != null)
-                {
-                    _needDraw = true;
-                    hitTrans = hitInfo.collider.GetComponent<Transform>();
-                }
-                else
-                {
-                    hitTrans = null;
-                    _needDraw = true;
-                }
-
-                if (onGetRootObjs != null)
-                    onGetRootObjs(hitTrans == null ? null : new Transform[] { hitTrans });
+                hitTrans = null;
+                _needDraw = true;
             }
+
+            if (onGetRootObjs != null)
+                onGetRootObjs(hitTrans == null ? null : new ISelectable[] { hitTrans });
+
             if (_needDraw)
             {
                 _startPos = Input.mousePosition;
@@ -114,12 +103,12 @@ public class SelectDrawer : MonoBehaviour
         }
         else if (_needDraw && Input.GetMouseButtonUp(0))
         {
-            if (_type != null && onGetRootObjs != null && Vector3.Distance(_startPos, Input.mousePosition) > 1)
+            if (onGetRootObjs != null && Vector3.Distance(_startPos, Input.mousePosition) > 1)
             {
-                var selectd = SelectObjectRect(_camera, _type, _startPos, Input.mousePosition);
+                var selectd = SelectObjectRect(_camera, _startPos, Input.mousePosition);
                 onGetRootObjs(selectd == null ? null : selectd);
             }
-            else if(hitTrans == null && onGetRootObjs != null)
+            else if (hitTrans == null && onGetRootObjs != null)
             {
                 onGetRootObjs(null);
             }
@@ -127,33 +116,32 @@ public class SelectDrawer : MonoBehaviour
         }
     }
 
-    private static Transform[] SelectObjectRect(Camera camera, Type type, Vector3 startPos, Vector3 endPos)
+    private ISelectable[] SelectObjectRect(Camera camera, Vector3 startPos, Vector3 endPos)
     {
-        List<Transform> items = new List<Transform>();
-        var objs = UnityEngine.Object.FindObjectsOfType(type) as Component[];
-        foreach (var item in objs)
+        startPos.z = endPos.z = camera.transform.position.y;//这个值不
+        var startPos1 = new Vector3(startPos.x, endPos.y, startPos.z);//与startPos 沿y方向一条线
+
+        var worldStart= Camera.main.ScreenToWorldPoint(startPos);
+        var worldEnd = Camera.main.ScreenToWorldPoint(endPos);
+        var worldStart1 = Camera.main.ScreenToWorldPoint(startPos1);
+
+        var centerPos = (worldStart + worldEnd) * 0.5f;
+        //var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        //cube.transform.position = centerPos;
+
+        var boxSize = new Vector3(Vector3.Distance(worldStart1,worldEnd),Vector3.Distance(worldStart,worldStart1), 100);
+        var hits = Physics.BoxCastAll(centerPos, boxSize,camera.transform.forward,camera.transform.rotation,100,LayerMask.GetMask(BuildingUtility.MoveItemLayerName));
+        List<ISelectable> items = new List<ISelectable>();
+
+        foreach (var item in hits)
         {
-            var trans = item.transform;
-            var viewPos = camera.WorldToScreenPoint(trans.position);
-            if (IsPointInBox(viewPos, startPos, endPos))
+            var iItem = item.collider.GetComponent<ISelectable>();
+            if (iItem != null)
             {
-                items.Add(item.GetComponent<Transform>());
+                items.Add(iItem);
             }
         }
         return items.ToArray();
-    }
-
-    private static bool IsPointInBox(Vector2 point, Vector2 startPoint, Vector2 endPoint)
-    {
-        var boxCenter = (startPoint + endPoint) * 0.5f;
-        var halfBoxWeight = Mathf.Abs(startPoint.x - endPoint.x) * 0.5f;
-        var halfBoxHeight = Mathf.Abs(startPoint.y - endPoint.y) * 0.5f;
-        var dir = point - boxCenter;
-        if (Mathf.Abs(dir.x) - halfBoxWeight < 0 && Mathf.Abs(dir.y) - halfBoxHeight < 0)
-        {
-            return true;
-        }
-        return false;
     }
 }
 

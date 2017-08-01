@@ -21,7 +21,7 @@ public class LoadSaveCtrl  {
         for (int i = 0; i < items.Length; i++)
         {
             var item = items[i];
-            var iteminfo = holderObj.ItemHoldList.Find(x =>x.itemName == item.name);
+            var iteminfo = holderObj.ItemHoldList.Find(x =>x.itemName == item.deviceName);
             if (iteminfo != null)
             {
                 var record = new DBDeviceRecord();
@@ -43,10 +43,12 @@ public class LoadSaveCtrl  {
         {
             var iteminfo = holderObj.ItemHoldList.Find(x => x.itemName == doc.records[i].deviceName);
             var obj = GameObject.Instantiate(iteminfo.prefab);
+            UnDoUtility.RecordStep(new CreateStepRecord(obj.GetComponent<BuildingItem>()));
             itemList.Add(obj.GetComponent<BuildingItem>());
             obj.transform.position = doc.records[i].position;
             obj.transform.eulerAngles = doc.records[i].rotation;
             obj.transform.localScale = doc.records[i].localScale;
+            UnDoUtility.RecordStep(new TransformStepRecord(obj.GetComponent<BuildingItem>()));
         }
         return itemList.ToArray();
     }

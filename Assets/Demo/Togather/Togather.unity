@@ -2970,6 +2970,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1052008101}
   - component: {fileID: 1052008102}
+  - component: {fileID: 1052008103}
   m_Layer: 5
   m_Name: QuickToolPanel
   m_TagString: Untagged
@@ -3008,6 +3009,23 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1052008100}
+--- !u!114 &1052008103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1052008100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5728c53c0beabdb4787209eacadf6aca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  holderObj: {fileID: 11400000, guid: 8bb3dacc8d7653c46b4e0252c896e522, type: 2}
+  m_back: {fileID: 1094673672}
+  m_forward: {fileID: 499832224}
+  m_load: {fileID: 1401699728}
+  m_save: {fileID: 1076790104}
+  m_top: {fileID: 718344081}
 --- !u!1 &1065417214
 GameObject:
   m_ObjectHideFlags: 0
@@ -5529,6 +5547,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 30
   target: {fileID: 686564995}
+  canvasGroup: {fileID: 0}
 --- !u!1 &1876638157
 GameObject:
   m_ObjectHideFlags: 0

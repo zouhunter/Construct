@@ -7,7 +7,7 @@ using RuntimeGizmos;
 
     public class CameraTest : MonoBehaviour {
     public DragCamera dragCamera;
-    public SelectDrawer drawer;
+    public BuildItemSelectDrawer drawer;
     public GizmoBehaviour transGizmo;
     private Vector3 lastTargetPos;
     //private Transform[] lastTrans;
@@ -17,7 +17,6 @@ using RuntimeGizmos;
         transGizmo.targetCtrl.onTransormingStateChanged = (x) => {
             drawer.enabled = !x;
         };
-        drawer.InitSelectDrawer<MeshRenderer>();
     }
     private void OnSelectSelected(Transform[] x)
     {

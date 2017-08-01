@@ -8,11 +8,11 @@ using System;
 using UnityEngine.EventSystems;
 public class BuildItemUI : MonoBehaviour, IListItem,IPointerDownHandler
 {
-    internal Action<GameObject> onButtonClicked;
-    private GameObject target;
+    internal Action<BuildItemHold> onButtonClicked;
     private Image img;
     private Text txt;
     public int Id { get; set; }
+    private BuildItemHold hold;
     private void Awake()
     {
         img = GetComponent<Image>();
@@ -21,14 +21,14 @@ public class BuildItemUI : MonoBehaviour, IListItem,IPointerDownHandler
 
     internal void InitData(BuildItemHold buildItemHold)
     {
-        this.target = buildItemHold.prefab;
         this.img.sprite = buildItemHold.pic;
         this.txt.text = buildItemHold.itemName;
+        this.hold = buildItemHold;
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
         if (onButtonClicked != null)
-            onButtonClicked(target);
+            onButtonClicked(hold);
     }
 }
