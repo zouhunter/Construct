@@ -17,6 +17,19 @@ public class NaviPoint : MonoBehaviour, ISelectable,IComparable<NaviPoint>
             return transform;
         }
     }
+    private BuildState _buildState;
+    public BuildState BuildState
+    {
+        get
+        {
+            return _buildState;
+        }
+
+        set
+        {
+            _buildState = value;
+        }
+    }
 
     private void Awake()
     {
@@ -29,6 +42,7 @@ public class NaviPoint : MonoBehaviour, ISelectable,IComparable<NaviPoint>
     public void UpdateBuilding(Vector3 point)
     {
         transform.position = point;
+        _buildState = BuildState.inbuild;
     }
     /// <summary>
     /// 更新框体绘制信息

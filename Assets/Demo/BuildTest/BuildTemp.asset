@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Name: BuildTemp
   m_EditorClassIdentifier: 
   key: 
+  naviPoint: {fileID: 114501528551909908, guid: 4f4ebf784d758c24ba16a35b197f2503,
+    type: 2}
   ItemHoldList:
   - itemName: Cube
     pic: {fileID: 21300000, guid: 1105e9b82c6d0ff4aa6661d6d4f02853, type: 3}

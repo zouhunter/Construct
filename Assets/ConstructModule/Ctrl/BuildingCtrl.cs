@@ -71,11 +71,20 @@ public class BuildingCtrl
     }
     public void CreateBuildItem(BuildItemHold hold)
     {
-        var item = GameObject.Instantiate(hold.prefab).GetComponent<BuildingItem>();
-        item.deviceName = hold.itemName;
-        UnDoUtility.RecordStep(new CreateStepRecord(item));
-        SetTargetItemSafe(item);
+        if (ActiveItem == null)
+        {
+            var item = GameObject.Instantiate(hold.prefab).GetComponent<BuildingItem>();
+            item.deviceName = hold.itemName;
+            UnDoUtil.RecordStep(new CreateStepRecord(item));
+            SetTargetItemSafe(item);
+        }
+        else
+        {
+            //DoNothing
+        }
+       
     }
+
     #region Private Method
     private void OperateActiveItem()
     {
@@ -96,7 +105,7 @@ public class BuildingCtrl
         if (InputUtility.HaveClickMouseTwice(ref putDownTimer, 1, 0.5f))
         {
             BuildingItem item = ActiveItem.GetComponent<BuildingItem>();
-            UnDoUtility.RecordStep(new DestroyStepRecord(item));
+            UnDoUtil.RecordStep(new DestroyStepRecord(item));
             //RemoveBuilding(item);
             _activeItem = null;
             if (onBuildOK != null)
@@ -114,7 +123,7 @@ public class BuildingCtrl
         yield return null;
         BuildingItem item = ActiveItem.GetComponent<BuildingItem>();
         item.buildState = BuildState.normal;
-        UnDoUtility.RecordStep(new TransformStepRecord(ActiveItem));
+        UnDoUtil.RecordStep(new TransformStepRecord(ActiveItem));
         SetTargetItemSafe(null);
         if (onBuildOK != null)
         {

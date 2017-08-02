@@ -114,7 +114,9 @@ public sealed class SelectDrawer : MonoBehaviour
 
     private ISelectable[] SelectObjectRect(Camera camera, Vector3 startPos, Vector3 endPos)
     {
-        startPos.z = endPos.z = camera.transform.position.y;//这个值不
+        var dis = camera.transform.position.y - Mathf.Cos(Vector3.Angle(camera.transform.forward, Vector3.down));
+        Debug.Log(dis);
+        startPos.z = endPos.z = dis;// camera.transform.position.y;//这个值不
         var startPos1 = new Vector3(startPos.x, endPos.y, startPos.z);//与startPos 沿y方向一条线
 
         var worldStart = Camera.main.ScreenToWorldPoint(startPos);
@@ -122,11 +124,15 @@ public sealed class SelectDrawer : MonoBehaviour
         var worldStart1 = Camera.main.ScreenToWorldPoint(startPos1);
 
         var centerPos = (worldStart + worldEnd) * 0.5f;
+        var dir = centerPos - camera.transform.position;
+        var quaternion = Quaternion.FromToRotation( Vector3.forward, dir.normalized);
         //var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         //cube.transform.position = centerPos;
-
+        //cube.transform.rotation = quaternion;
         var boxSize = new Vector3(Vector3.Distance(worldStart1, worldEnd), Vector3.Distance(worldStart, worldStart1), 100);
-        var hits = Physics.BoxCastAll(centerPos, boxSize, camera.transform.forward, camera.transform.rotation, 100, LayerMask.GetMask(BuildingUtility.MoveItemLayerName));
+        //cube.transform.localScale = boxSize;
+
+        var hits = Physics.BoxCastAll(centerPos, boxSize * 0.5f, dir, quaternion, 0.01f, LayerMask.GetMask(BuildingUtility.MoveItemLayerName));
         List<ISelectable> items = new List<ISelectable>();
 
         foreach (var item in hits)

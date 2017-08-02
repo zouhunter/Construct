@@ -63,6 +63,19 @@ public class BuildingItem : MonoBehaviour, ISelectable
         }
     }
 
+    BuildState ISelectable.BuildState
+    {
+        get
+        {
+            return buildState;
+        }
+
+        set
+        {
+            buildState = value;
+        }
+    }
+
     private void OnEnable()
     {
         quadInfo = new global::QuadInfo();

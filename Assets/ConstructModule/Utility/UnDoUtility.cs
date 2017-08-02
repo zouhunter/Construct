@@ -12,8 +12,8 @@ public interface IUndoAbleStep
 }
 public class CreateStepRecord : IUndoAbleStep
 {
-    public BuildingItem target;
-    public CreateStepRecord(BuildingItem target)
+    public ISelectable target;
+    public CreateStepRecord(ISelectable target)
     {
         this.target = target;
     }
@@ -24,21 +24,25 @@ public class CreateStepRecord : IUndoAbleStep
             target.gameObject.SetActive(!target.gameObject.activeSelf);
             if (target.gameObject.activeSelf)
             {
-                UnDoUtility.ReDoOneStep();//刚创建出来并没有坐标
+                UnDoUtil.ReDoOneStep();//刚创建出来并没有坐标
             }
-            target.buildState = BuildState.normal;//.installAble = true;
+            target.BuildState = BuildState.normal;//.installAble = true;
         }
     }
 }
 public class DestroyStepRecord : IUndoAbleStep
 {
-    BuildingItem target;
+    ISelectable target;
     DBDeviceRecord record;
-    public DestroyStepRecord(BuildingItem target)
+    public DestroyStepRecord(ISelectable target)
     {
         this.target = target;
-        record = new global::DBDeviceRecord();
-        record.Record(target);
+        if (target is BuildingItem)
+        {
+            record = new global::DBDeviceRecord();
+            record.Record(target as BuildingItem);
+        }
+       
         target.gameObject.SetActive(false);
     }
     public void Restore()
@@ -46,32 +50,41 @@ public class DestroyStepRecord : IUndoAbleStep
         if (target != null)
         {
             target.gameObject.SetActive(true);
-            record.UnRecord(target);
-            target.buildState = BuildState.normal;//.installAble = true;
+            if (target is BuildingItem)
+            {
+                record.UnRecord(target as BuildingItem);
+            }
+            target.BuildState = BuildState.normal;//.installAble = true;
         }
     }
 }
 public class TransformStepRecord : IUndoAbleStep
 {
-    BuildingItem target;
+    ISelectable target;
     DBDeviceRecord record;
-    public TransformStepRecord(BuildingItem target)
+    public TransformStepRecord(ISelectable target)
     {
         this.target = target;
-        record = new global::DBDeviceRecord();
-        record.Record(target);
+        if (target is BuildingItem)
+        {
+            record = new global::DBDeviceRecord();
+            record.Record(target as BuildingItem);
+        }
     }
 
     public void Restore()
     {
         if (target != null)
         {
-            record.UnRecord(target);
+            if (target is BuildingItem)
+            {
+                record.UnRecord(target as BuildingItem);
+            }
         }
     }
 }
 
-public static class UnDoUtility
+public static class UnDoUtil
 {
     public static Stack<IUndoAbleStep> records = new Stack<IUndoAbleStep>();
     public static Stack<IUndoAbleStep> temprecords = new Stack<IUndoAbleStep>();

@@ -9,7 +9,8 @@ public class QuickToolPanel : MonoBehaviour
 {
     private LoadSaveCtrl loadSave;
 
-    string filePath = "";
+    string itemsfilePath = "";
+    string naviPointsfilePath = "";
     [SerializeField]
     private Button m_back;
     [SerializeField]
@@ -20,12 +21,15 @@ public class QuickToolPanel : MonoBehaviour
     private Button m_save;
     [SerializeField]
     private Toggle m_top;
-
+    [SerializeField]
+    private Button m_loadRoad;
+    [SerializeField]
+    private Button m_saveRoad;
     [SerializeField]
     private Button m_naviPoint;
     private DragCamera m_DgCamera;
     private Vector3 centerView;
-
+    public event UnityAction<NaviPoint[]> onLoadNaviPoints;
     public event UnityAction onCreateNaviPoint;
     private void Awake()
     {
@@ -35,9 +39,32 @@ public class QuickToolPanel : MonoBehaviour
         m_load.onClick.AddListener(LoadFromJson);
         m_top.onValueChanged.AddListener(OnChangeView);
         m_naviPoint.onClick.AddListener(OnCreateNaviPoint);
-
-        filePath = Application.dataPath + "/Demo/LoadSaveTest/record.json";
+        m_loadRoad.onClick.AddListener(OnLoadRoadFromJson);
+        m_saveRoad.onClick.AddListener(OnRecordRoadToJson);
+        itemsfilePath = Application.dataPath + "/Demo/LoadSaveTest/items.json";
+        naviPointsfilePath = itemsfilePath.Replace("items", "points");
     }
+
+    private void OnRecordRoadToJson()
+    {
+        var items = FindObjectsOfType<NaviPoint>();
+        var json = loadSave.RecordToJson(items);
+        Debug.Log(json);
+        System.IO.File.WriteAllText(naviPointsfilePath, json);
+    }
+
+    private void OnLoadRoadFromJson()
+    {
+        var json = System.IO.File.ReadAllText(naviPointsfilePath);
+        NaviPoint[] items = loadSave.LoadNaviPointsFromJson(json);
+        if (onLoadNaviPoints != null) onLoadNaviPoints.Invoke(items);
+        if (items != null)
+            foreach (var item in items)
+            {
+                Debug.Log(item.name);
+            }
+    }
+
     public void InitLoadSaveCtrl(ItemsHolderObj holderObj)
     {
         loadSave = new global::LoadSaveCtrl(holderObj);
@@ -62,11 +89,11 @@ public class QuickToolPanel : MonoBehaviour
 
     private void OnMyBackClicked()
     {
-        UnDoUtility.UnDoOneStep();
+        UnDoUtil.UnDoOneStep();
     }
     private void OnMyForwardClicked()
     {
-        UnDoUtility.ReDoOneStep();
+        UnDoUtil.ReDoOneStep();
     }
 
     private void RecordToJson()
@@ -74,12 +101,12 @@ public class QuickToolPanel : MonoBehaviour
         var items = FindObjectsOfType<BuildingItem>();
         var json = loadSave.RecordToJson(items);
         Debug.Log(json);
-        System.IO.File.WriteAllText(filePath, json);
+        System.IO.File.WriteAllText(itemsfilePath, json);
     }
     private void LoadFromJson()
     {
-        var json = System.IO.File.ReadAllText(filePath);
-        BuildingItem[] items = loadSave.ReadFromJson(json);
+        var json = System.IO.File.ReadAllText(itemsfilePath);
+        BuildingItem[] items = loadSave.LoadBuildItemsFromJson(json);
         if (items != null)
             foreach (var item in items)
             {

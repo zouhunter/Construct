@@ -10,8 +10,6 @@ public class PlacementSystem : MonoBehaviour
 {
     [Header("视角相机及绘制渲染的预制体")]
     public GameObject viewCameraPrefab;
-    [Header("快捷导航点的预制体")]
-    public NaviPoint naviPoint;
     [Header("保存预制体对象")]
     public ItemsHolderObj itemsHoldObj;
 
@@ -51,7 +49,7 @@ public class PlacementSystem : MonoBehaviour
 
     private void InitController()
     {
-        naviPointCtrl = new NaviPointCtrl(naviPoint);
+        naviPointCtrl = new NaviPointCtrl(itemsHoldObj.naviPoint);
         buildCtrl = new BuildingCtrl(transGizmo,dragCamera);
     }
 
@@ -61,6 +59,7 @@ public class PlacementSystem : MonoBehaviour
         localListPanel.onBuildUIItemClicked += buildCtrl.CreateBuildItem; 
         toolPanel.InitLoadSaveCtrl(itemsHoldObj);
         toolPanel.onCreateNaviPoint += naviPointCtrl.CreateItem;
+        toolPanel.onLoadNaviPoints += naviPointCtrl.LoadItems;
     }
     private void RegisterEvents()
     {

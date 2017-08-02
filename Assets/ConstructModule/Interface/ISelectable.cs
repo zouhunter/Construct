@@ -6,4 +6,6 @@ using UnityEngine;
 
 public interface ISelectable {
     Transform TransformComponent { get; }
+    GameObject gameObject { get; }
+    BuildState BuildState { get; set; }
 }

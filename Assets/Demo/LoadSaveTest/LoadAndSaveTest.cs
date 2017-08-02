@@ -35,7 +35,7 @@ public class LoadAndSaveTest : MonoBehaviour {
     void LoadFromJson()
     {
         var json = System.IO.File.ReadAllText(filePath);
-        BuildingItem[] items = loadSave.ReadFromJson(json);
+        BuildingItem[] items = loadSave.LoadBuildItemsFromJson(json);
         if(items!= null)
         foreach (var item in items)
         {

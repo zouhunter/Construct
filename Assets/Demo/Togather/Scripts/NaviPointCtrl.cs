@@ -16,7 +16,11 @@ public class NaviPointCtrl
     private float pickUpTimer;
     private float lastDistence = 10;
     public NaviPoint prefab;
-    private LineRenderer lineRender;
+    private VRLineRenderer lineRender;
+    private const string lineShaderName = "VRLineRenderer/MeshChain - Alpha Blended";
+    private float colorFlow;
+    private Color startColor = Color.red;
+    private Color endColor = Color.green;
     public NaviPointCtrl(NaviPoint prefab)
     {
         this.prefab = prefab;
@@ -25,23 +29,49 @@ public class NaviPointCtrl
     private void InitLineRender()
     {
         GameObject lineHolder = new GameObject("lineHolder");
-        lineRender = lineHolder.AddComponent<LineRenderer>();
-        lineRender.material = new Material(Shader.Find("Unlit/Color"));
-        lineRender.material.color = Color.blue;
-        lineRender.startWidth = lineRender.endWidth = 0.1f;
-        lineRender.positionCount = 0;
+        lineRender = lineHolder.AddComponent<VRLineRenderer>();
+        var meshRender = lineHolder.GetComponent<MeshRenderer>();
+        meshRender.material = new Material(Shader.Find(lineShaderName));
+        meshRender.material.color = Color.blue;
+        meshRender.material.SetColor("_Color", Color.white);
+    }
+
+    public void CreateItem()
+    {
+        var item = GameObject.Instantiate<NaviPoint>(prefab);
+        pointList.Add(item);
+        if (selectedItem != null)
+        {
+            item.Id = selectedItem.Id;
+            if (pointList.Count > selectedItem.Id)
+            {
+                for (int i = selectedItem.Id; i < pointList.Count; i++)
+                {
+                    pointList[i].Id++;
+                    pointList[i].name = pointList[i].Id.ToString();
+                }
+            }
+        }
+        else
+        {
+            item.Id = pointList.Count;
+        }
+        item.name = item.Id.ToString();
+        ActiveTargetItem(item);
     }
     public void SelectItem(Transform[] arg0)
     {
         if (arg0 != null && arg0.Length > 0)
         {
+            selectedItem = arg0[0].GetComponent<NaviPoint>();
+
             if (InputUtility.HaveClickMouseTwice(ref pickUpTimer,0,05f))
             {
                 ActiveTargetItem(arg0[0].GetComponent<NaviPoint>());
             }
             else
             {
-                selectedItem = arg0[0].GetComponent<NaviPoint>();
+                //DoNothing
             }
         }
         else
@@ -49,12 +79,29 @@ public class NaviPointCtrl
             ActiveTargetItem(null);
         }
     }
+
+    public void LoadItems(NaviPoint[] arg0)
+    {
+        if (arg0 != null && arg0.Length > 0)
+        {
+            selectedItem = arg0[0];
+            foreach (var item in pointList) {
+                GameObject.Destroy(item.gameObject);
+            }
+            pointList.Clear();
+            pointList.AddRange(arg0);
+        }
+    }
     public void Update()
     {
-        if (activeItem != null)
+        if (selectedItem != null)
         {
-            UpdateTargetPos();
             RefeshConnect();
+        }
+        if(activeItem !=null)
+        {
+            activeItem.BuildState = BuildState.inbuild;
+            UpdateTargetPos();
         }
     }
     private void UpdateTargetPos()
@@ -78,52 +125,37 @@ public class NaviPointCtrl
             for (int i = activeItem.Id; i < pointList.Count; i++)
             {
                 pointList[i].Id--;
+                pointList[i].name = pointList[i].Id.ToString();
             }
             pointList.Remove(activeItem);
             GameObject.Destroy(activeItem.gameObject);
         }
     }
-
-    IEnumerator DelyPutDown()
+    private IEnumerator DelyPutDown()
     {
         yield return null;
+        activeItem.BuildState = BuildState.normal;
         activeItem = null;
     }
-    public void ActiveTargetItem(NaviPoint item)
+    private void ActiveTargetItem(NaviPoint item)
     {
          activeItem = item;
     }
-    internal void CreateItem()
-    {
-        var item = GameObject.Instantiate<NaviPoint>(prefab);
-        pointList.Add(item);
-        if (selectedItem != null)
-        {
-            item.Id = selectedItem.Id;
-            if (pointList.Count > selectedItem.Id)
-            {
-                for (int i = selectedItem.Id; i < pointList.Count; i++)
-                {
-                    pointList[i].Id++;
-                    pointList[i].name = pointList[i].Id.ToString() ;
-                }
-            }
-        }
-        else
-        {
-            item.Id = pointList.Count;
-        }
-        item.name = item.Id.ToString();
-        ActiveTargetItem(item.GetComponent<NaviPoint>());
-    }
-
     /// <summary>
     /// 更新连接
     /// </summary>
     private void RefeshConnect()
     {
-        lineRender.positionCount = pointList.Count;
         pointList.Sort();
-        lineRender.SetPositions(pointList.ConvertAll<Vector3>(x => x.transform.position).ToArray());
+        lineRender.SetPositions(pointList.ConvertAll<Vector3>(x => x.transform.position).ToArray(),true);
+        lineRender.SetWidth(1f, 1f);
+        colorFlow += Time.deltaTime;
+        if (colorFlow > 1)
+        {
+            colorFlow = 0;
+        }
+        startColor.r = colorFlow;
+        endColor.g = 1 - colorFlow;
+        lineRender.SetColors(startColor, endColor);
     }
 }
