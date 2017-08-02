@@ -25,4 +25,17 @@ public static class BuildingUtility
         }
         return com;
     }
+    public static bool IsPointInBox(Vector3 point, Vector3 centerPos, Vector3 size)
+    {
+        var halfBoxWeight = size.x * 0.5f;
+        var halfBoxLength = size.z * 0.5f;
+        var halfBoxHeight = size.y * 0.5f;
+        var dir = point - centerPos;
+        if (Mathf.Abs(dir.x) - halfBoxWeight < 0 && Mathf.Abs(dir.y) - halfBoxHeight < 0 && Mathf.Abs(dir.z) - halfBoxLength < 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
 }

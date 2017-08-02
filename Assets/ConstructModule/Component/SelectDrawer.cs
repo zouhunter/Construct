@@ -71,36 +71,31 @@ public sealed class SelectDrawer : MonoBehaviour
 
     private void Update()
     {
-        if (EventSystem.current.IsPointerOverGameObject() )
-        {
-            _needDraw = false;
-            return;
-        }
-
-
         if (Input.GetMouseButtonDown(0))
         {
+            if (EventSystem.current.IsPointerOverGameObject())
+            {
+                _needDraw = false;
+                return;
+            }
+
             RaycastHit hitInfo;
             var hit = Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out hitInfo);
 
             if (hit && hitInfo.collider != null && hitInfo.collider.GetComponent(typeof(ISelectable)) != null)
             {
-                _needDraw = true;
                 hitTrans = hitInfo.collider.GetComponent(typeof(ISelectable)) as ISelectable;
             }
             else
             {
                 hitTrans = null;
-                _needDraw = true;
             }
 
             if (onGetRootObjs != null)
                 onGetRootObjs(hitTrans == null ? null : new ISelectable[] { hitTrans });
 
-            if (_needDraw)
-            {
-                _startPos = Input.mousePosition;
-            }
+            _needDraw = true;
+            _startPos = Input.mousePosition;
         }
         else if (_needDraw && Input.GetMouseButtonUp(0))
         {
@@ -122,7 +117,7 @@ public sealed class SelectDrawer : MonoBehaviour
         startPos.z = endPos.z = camera.transform.position.y;//这个值不
         var startPos1 = new Vector3(startPos.x, endPos.y, startPos.z);//与startPos 沿y方向一条线
 
-        var worldStart= Camera.main.ScreenToWorldPoint(startPos);
+        var worldStart = Camera.main.ScreenToWorldPoint(startPos);
         var worldEnd = Camera.main.ScreenToWorldPoint(endPos);
         var worldStart1 = Camera.main.ScreenToWorldPoint(startPos1);
 
@@ -130,8 +125,8 @@ public sealed class SelectDrawer : MonoBehaviour
         //var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         //cube.transform.position = centerPos;
 
-        var boxSize = new Vector3(Vector3.Distance(worldStart1,worldEnd),Vector3.Distance(worldStart,worldStart1), 100);
-        var hits = Physics.BoxCastAll(centerPos, boxSize,camera.transform.forward,camera.transform.rotation,100,LayerMask.GetMask(BuildingUtility.MoveItemLayerName));
+        var boxSize = new Vector3(Vector3.Distance(worldStart1, worldEnd), Vector3.Distance(worldStart, worldStart1), 100);
+        var hits = Physics.BoxCastAll(centerPos, boxSize, camera.transform.forward, camera.transform.rotation, 100, LayerMask.GetMask(BuildingUtility.MoveItemLayerName));
         List<ISelectable> items = new List<ISelectable>();
 
         foreach (var item in hits)

@@ -10,22 +10,22 @@ public class BuildTest : MonoBehaviour {
     public ScrollRect scrollRect;
     public BuildItemSelectDrawer quadDrawer;
     void Start () {
-        buildCtrl.Init();
-        quadDrawer.onGetRootObjs += OnSelectedItems;
+        //buildCtrl.Init();
+        quadDrawer.onGetRootObjs += buildCtrl.SelectItem;// OnSelectedItems;
     }
-    private void OnSelectedItems(Transform[] trans)
-    {
-        if (trans != null && trans.Length > 0)
-        {
-            var activeItem = trans[0].GetComponent<BuildingItem>();
-            buildCtrl.ActiveTargetItem(activeItem);
-            quadDrawer.enabled = false;
-        }
-        else
-        {
-            buildCtrl.ActiveTargetItem(null);
-        }
-    }
+    //private void OnSelectedItems(Transform[] trans)
+    //{
+    //    if (trans != null && trans.Length > 0)
+    //    {
+    //        var activeItem = trans[0].GetComponent<BuildingItem>();
+    //        buildCtrl.ActiveTargetItem(activeItem);
+    //        quadDrawer.enabled = false;
+    //    }
+    //    else
+    //    {
+    //        buildCtrl.ActiveTargetItem(null);
+    //    }
+    //}
     private void Update()
     {
         CameraHitUtility.Update(100);

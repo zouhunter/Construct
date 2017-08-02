@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using UnityEngine;
 using System;
 
-public class NaviPoint : MonoBehaviour, ISelectable
+public class NaviPoint : MonoBehaviour, ISelectable,IComparable<NaviPoint>
 {
     public int Id { get; set; }
     public Vector3[] quad { get; private set; }
@@ -47,5 +47,21 @@ public class NaviPoint : MonoBehaviour, ISelectable
         quad[2] = center + rot * new Vector3(wigth * 0.5f, 0.01f, -length * 0.5f);
         quad[3] = center + rot * new Vector3(wigth * 0.5f, 0.01f, length * 0.5f);
         return quad;
+    }
+
+    public int CompareTo(NaviPoint other)
+    {
+        if (Id > other.Id)
+        {
+            return 1;
+        }
+        else if(Id == other.Id)
+        {
+            return 0;
+        }
+        else
+        {
+            return -1;
+        }
     }
 }

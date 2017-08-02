@@ -51,7 +51,14 @@ public class NaviPointSelectDrawer : MonoBehaviour
         {
             if (items == null)
             {
-                onGetRootObjs.Invoke(null);
+                if (selected != null && selected.Count > 0)
+                {
+                    onGetRootObjs.Invoke(null);
+                }
+                else
+                {
+                    //DoNothing
+                }
             }
             else
             {

@@ -46,7 +46,14 @@ public class BuildItemSelectDrawer : MonoBehaviour
         {
             if (items == null)
             {
-                onGetRootObjs.Invoke(null);
+                if(selected != null && selected.Count > 0)
+                {
+                    onGetRootObjs.Invoke(null);
+                }
+                else
+                {
+                    //DoNothing
+                }
             }
             else
             {
@@ -61,6 +68,11 @@ public class BuildItemSelectDrawer : MonoBehaviour
                 }
             }
         }
+    }
+    public void SetEnable(bool enable)
+    {
+        this.enabled = enable;
+        selectDrawer.enabled = enabled;
     }
     protected void OnPostRender()
     {
