@@ -18,7 +18,8 @@ public sealed class SelectDrawer : MonoBehaviour
 
     private void Awake()
     {
-        if (lineMaterial == null) lineMaterial = new Material(Shader.Find("Custom/Lines"));
+        if (lineMaterial == null)
+            lineMaterial = new Material(Shader.Find("Custom/Lines"));
         _camera = GetComponent<Camera>();
     }
     private void OnEnable()

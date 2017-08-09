@@ -41,7 +41,7 @@ public class QuickToolPanel : MonoBehaviour
         m_naviPoint.onClick.AddListener(OnCreateNaviPoint);
         m_loadRoad.onClick.AddListener(OnLoadRoadFromJson);
         m_saveRoad.onClick.AddListener(OnRecordRoadToJson);
-        itemsfilePath = Application.dataPath + "/Demo/LoadSaveTest/items.json";
+        itemsfilePath = Application.dataPath + "/items.json";
         naviPointsfilePath = itemsfilePath.Replace("items", "points");
     }
 

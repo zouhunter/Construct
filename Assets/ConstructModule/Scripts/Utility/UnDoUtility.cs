@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine;
-using UnityEditor;
-using System;
 
 public interface IUndoAbleStep
 {

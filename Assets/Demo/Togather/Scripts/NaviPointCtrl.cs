@@ -16,8 +16,8 @@ public class NaviPointCtrl
     private float pickUpTimer;
     private float lastDistence = 10;
     public NaviPoint prefab;
-    private VRLineRenderer lineRender;
-    private const string lineShaderName = "VRLineRenderer/MeshChain - Alpha Blended";
+    private LineRenderer lineRender;
+    private const string lineShaderName = "Standard";
     private float colorFlow;
     private Color startColor = Color.red;
     private Color endColor = Color.green;
@@ -29,11 +29,14 @@ public class NaviPointCtrl
     private void InitLineRender()
     {
         GameObject lineHolder = new GameObject("lineHolder");
-        lineRender = lineHolder.AddComponent<VRLineRenderer>();
-        var meshRender = lineHolder.GetComponent<MeshRenderer>();
-        meshRender.material = new Material(Shader.Find(lineShaderName));
-        meshRender.material.color = Color.blue;
-        meshRender.material.SetColor("_Color", Color.white);
+        lineRender = lineHolder.AddComponent<LineRenderer>();
+        lineRender.material = new Material(Shader.Find(lineShaderName));
+        lineRender.material.color = Color.blue;
+        lineRender.material.SetColor("_Color", Color.white);
+        lineRender.positionCount = 0;
+        lineRender.startColor = startColor;
+        lineRender.endColor = endColor;
+        lineRender.startWidth = lineRender.endWidth = 0.1f;
     }
 
     public void CreateItem()
@@ -147,15 +150,15 @@ public class NaviPointCtrl
     private void RefeshConnect()
     {
         pointList.Sort();
-        lineRender.SetPositions(pointList.ConvertAll<Vector3>(x => x.transform.position).ToArray(),true);
-        lineRender.SetWidth(1f, 1f);
-        colorFlow += Time.deltaTime;
-        if (colorFlow > 1)
-        {
-            colorFlow = 0;
-        }
-        startColor.r = colorFlow;
-        endColor.g = 1 - colorFlow;
-        lineRender.SetColors(startColor, endColor);
+        lineRender.positionCount = pointList.Count;
+        lineRender.SetPositions(pointList.ConvertAll<Vector3>(x => x.transform.position).ToArray());
+        //colorFlow += Time.deltaTime;
+        //if (colorFlow > 1)
+        //{
+        //    colorFlow = 0;
+        //}
+        //startColor.r = colorFlow;
+        //endColor.g = 1 - colorFlow;
+       
     }
 }
